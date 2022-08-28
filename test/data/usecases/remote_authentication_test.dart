@@ -99,4 +99,18 @@ void main() {
 
     expect(account.token, accessToken);
   });
+
+  test(
+      'Should throw UnexpectedError if HttpClient returns 200 with ivalid data',
+      () async {
+    When mockRequestCall() => when(() => httpClient.request(
+        url: any(named: 'url'),
+        method: any(named: 'method'),
+        body: any(named: 'body')));
+    mockRequestCall().thenAnswer((_) async => {'invalid_key': 'invalid_value'});
+
+    final future = sut.auth(params);
+
+    expect(future, throwsA(DomainError.unexpected));
+  });
 }
