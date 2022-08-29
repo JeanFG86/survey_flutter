@@ -3,19 +3,23 @@ import 'dart:convert';
 import 'package:faker/faker.dart';
 import 'package:http/http.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:survey_flutter/data/http/http.dart';
 import 'package:test/test.dart';
 
-class HttpAdapter {
+class HttpAdapter implements HttpClient {
   final Client client;
   HttpAdapter(this.client);
-  Future<void> request(
+  @override
+  Future<dynamic> request(
       {required String url, required String method, Map? body}) async {
     late Map<String, String> headers = {
       'content-type': 'application/json',
       'accept': 'application/json'
     };
     final jsonBody = body != null ? jsonEncode(body) : null;
-    await client.post(Uri.parse(url), headers: headers, body: jsonBody);
+    final response =
+        await client.post(Uri.parse(url), headers: headers, body: jsonBody);
+    return jsonDecode(response.body);
   }
 }
 
@@ -60,6 +64,12 @@ void main() {
       await sut.request(url: url, method: 'post');
 
       verify(() => client.post(any(), headers: any(named: 'headers')));
+    });
+
+    test('Should return data if post returns 200', () async {
+      final response = await sut.request(url: url, method: 'post');
+
+      expect(response, {'any_key': 'any_value'});
     });
   });
 }
