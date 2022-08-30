@@ -13,6 +13,7 @@ class ClientSpy extends Mock implements Client {
       .post(any(), body: any(named: 'body'), headers: any(named: 'headers')));
   void mockPost(int statusCode, {String body = '{"any_key":"any_value"}'}) =>
       mockPostCall().thenAnswer((_) async => Response(body, statusCode));
+  void mockPostError() => when(() => mockPostCall().thenThrow(Exception()));
 }
 
 void main() {
@@ -128,6 +129,14 @@ void main() {
 
     test('Should return ServerError if post returns 500', () async {
       client.mockPost(500);
+
+      final future = sut.request(url: url, method: 'post');
+
+      expect(future, throwsA(HttpError.serverError));
+    });
+
+    test('Should return ServerError if post throws', () async {
+      client.mockPostError();
 
       final future = sut.request(url: url, method: 'post');
 
