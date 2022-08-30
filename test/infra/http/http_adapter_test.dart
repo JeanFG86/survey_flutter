@@ -29,6 +29,14 @@ void main() {
     url = faker.internet.httpUrl();
     registerFallbackValue(Uri.parse(url));
   });
+
+  group('shared', () {
+    test('Should throw ServerError if invalid method is provided', () async {
+      final future = sut.request(url: url, method: 'invalid_method');
+
+      expect(future, throwsA(HttpError.serverError));
+    });
+  });
   group('post', () {
     test('Should call post with correct Values', () async {
       await sut
