@@ -10,16 +10,16 @@ class LoginPage extends StatelessWidget {
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           Container(
             height: 240,
-            margin: EdgeInsets.only(bottom: 32),
+            margin: const EdgeInsets.only(bottom: 32),
             decoration: BoxDecoration(
                 gradient: LinearGradient(
                     begin: Alignment.topRight,
                     end: Alignment.bottomLeft,
                     colors: [Theme.of(context).primaryColorLight, Theme.of(context).primaryColorDark]),
-                boxShadow: [BoxShadow(offset: Offset(0, 0), spreadRadius: 0, blurRadius: 4, color: Colors.black)],
-                borderRadius:
-                    BorderRadius.only(bottomLeft: Radius.elliptical(20, 20), bottomRight: Radius.elliptical(20, 20))),
-            child: Image(image: AssetImage('lib/ui/assets/logo.png')),
+                boxShadow: const [BoxShadow(offset: Offset(0, 0), spreadRadius: 0, blurRadius: 4, color: Colors.black)],
+                borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.elliptical(20, 20), bottomRight: Radius.elliptical(20, 20))),
+            child: const Image(image: AssetImage('lib/ui/assets/logo.png')),
           ),
           Text(
             'Login'.toUpperCase(),
@@ -30,15 +30,15 @@ class LoginPage extends StatelessWidget {
               child: Column(
             children: [
               TextFormField(
-                decoration: InputDecoration(labelText: 'Email', icon: Icon(Icons.email)),
+                decoration: const InputDecoration(labelText: 'Email', icon: Icon(Icons.email)),
                 keyboardType: TextInputType.emailAddress,
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Senha', icon: Icon(Icons.lock)),
+                decoration: const InputDecoration(labelText: 'Senha', icon: Icon(Icons.lock)),
                 obscureText: true,
               ),
               ElevatedButton(onPressed: () {}, child: Text('Entrar'.toUpperCase())),
-              TextButton.icon(onPressed: () {}, icon: Icon(Icons.person), label: Text('Criar Conta'))
+              TextButton.icon(onPressed: () {}, icon: const Icon(Icons.person), label: const Text('Criar Conta'))
             ],
           ))
         ]),
