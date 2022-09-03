@@ -16,13 +16,18 @@ class App extends StatelessWidget {
       title: 'Survey',
       debugShowCheckedModeBanner: false,
       theme: theme.copyWith(
-          primaryColor: primaryColor,
-          primaryColorDark: primaryColorDark,
-          primaryColorLight: primaryColorLight,
-          colorScheme: theme.colorScheme.copyWith(secondary: primaryColor),
-          backgroundColor: Colors.white,
-          textTheme: const TextTheme(
-              headline1: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: primaryColorDark))),
+        primaryColor: primaryColor,
+        primaryColorDark: primaryColorDark,
+        primaryColorLight: primaryColorLight,
+        colorScheme: theme.colorScheme.copyWith(secondary: primaryColor),
+        backgroundColor: Colors.white,
+        textTheme:
+            const TextTheme(headline1: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: primaryColorDark)),
+        inputDecorationTheme: const InputDecorationTheme(
+            enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: primaryColorLight)),
+            focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: primaryColor)),
+            alignLabelWithHint: true),
+      ),
       home: const LoginPage(),
     );
   }
