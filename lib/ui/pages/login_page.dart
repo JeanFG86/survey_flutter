@@ -35,7 +35,7 @@ class LoginPage extends StatelessWidget {
                   ),
                 ),
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: null,
                   style: ButtonStyle(
                       shape:
                           MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)))),
