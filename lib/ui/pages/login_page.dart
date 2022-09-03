@@ -11,11 +11,7 @@ class LoginPage extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           const LoginHeader(),
-          Text(
-            'Login'.toUpperCase(),
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.headline1,
-          ),
+          HeadLine1(text: 'Login'),
           Padding(
             padding: const EdgeInsets.all(32),
             child: Form(
