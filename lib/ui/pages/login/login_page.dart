@@ -43,7 +43,7 @@ class LoginPage extends StatelessWidget {
                           decoration: InputDecoration(
                               labelText: 'Senha',
                               icon: Icon(Icons.lock, color: Theme.of(context).primaryColorLight),
-                              errorText: snapshot.data),
+                              errorText: snapshot.data.toString().isEmpty ? null : snapshot.data),
                           obscureText: true,
                           onChanged: presenter.validatePassword,
                         );

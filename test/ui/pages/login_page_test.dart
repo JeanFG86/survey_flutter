@@ -6,19 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:survey_flutter/ui/pages/pages.dart';
 import 'package:mocktail/mocktail.dart';
 
-class LoginPresenterSpy extends Mock implements LoginPresenter {
-  /*
-  final emailErrorController = StreamController<String>();
-
-  LoginPresenterSpy() {
-    when(() => this.emailErrorStream).thenAnswer((_) => emailErrorController.stream);
-  }
-
-  void dispose() {
-    emailErrorController.close();
-  }
-  */
-}
+class LoginPresenterSpy extends Mock implements LoginPresenter {}
 
 void main() {
   late LoginPresenterSpy presenter;
@@ -33,7 +21,6 @@ void main() {
 
     when(() => presenter.emailErrorStream).thenAnswer((_) => emailErrorController.stream);
     when(() => presenter.passwordErrorStream).thenAnswer((_) => passwordErrorController.stream);
-    //when(() => this.emailErrorStream).thenAnswer((_) => emailErrorController.stream);
 
     final loginPage = MaterialApp(home: LoginPage(presenter));
     await tester.pumpWidget(loginPage);
@@ -107,5 +94,27 @@ void main() {
     await tester.pump();
 
     expect(find.text('any error'), findsOneWidget);
+  });
+
+  testWidgets('Should present no error if password is valid and emailErrorController is null',
+      (WidgetTester tester) async {
+    await loadPage(tester);
+
+    passwordErrorController.add(null);
+    await tester.pump();
+
+    final passwordTextChildren = find.descendant(of: find.bySemanticsLabel('Senha'), matching: find.byType(Text));
+    expect(passwordTextChildren, findsOneWidget);
+  });
+
+  testWidgets('Should present no error if password is valid and emailErrorController is empty',
+      (WidgetTester tester) async {
+    await loadPage(tester);
+
+    passwordErrorController.add('');
+    await tester.pump();
+
+    final passwordTextChildren = find.descendant(of: find.bySemanticsLabel('Senha'), matching: find.byType(Text));
+    expect(passwordTextChildren, findsOneWidget);
   });
 }
