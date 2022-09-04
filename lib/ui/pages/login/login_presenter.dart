@@ -1,7 +1,8 @@
 abstract class LoginPresenter {
-  dynamic get emailErrorStream;
-  dynamic get passwordErrorStream;
-  dynamic get isFormValidStream;
+  Stream get emailErrorStream;
+  Stream get passwordErrorStream;
+  Stream get isFormValidStream;
+  Stream get isLoadingStream;
 
   void validateEmail(String email);
   void validatePassword(String email);
