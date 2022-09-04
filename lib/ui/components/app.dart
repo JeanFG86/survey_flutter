@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../pages/pages.dart';
-
 class App extends StatelessWidget {
   const App({Key? key}) : super(key: key);
 
@@ -28,7 +26,7 @@ class App extends StatelessWidget {
             focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: primaryColor)),
             alignLabelWithHint: true),
       ),
-      home: const LoginPage(),
+      //home: LoginPage(null),
     );
   }
 }
