@@ -22,12 +22,12 @@ class LoginPresenterSpy extends Mock implements LoginPresenter {
 
 void main() {
   late LoginPresenterSpy presenter;
-  late StreamController<String> emailErrorController;
+  late StreamController<dynamic> emailErrorController;
 
 //continua 8min
   Future<void> loadPage(WidgetTester tester) async {
     presenter = LoginPresenterSpy();
-    emailErrorController = StreamController<String>();
+    emailErrorController = StreamController<dynamic>();
 
     when(() => presenter.emailErrorStream).thenAnswer((_) => emailErrorController.stream);
     //when(() => this.emailErrorStream).thenAnswer((_) => emailErrorController.stream);
@@ -72,5 +72,27 @@ void main() {
     await tester.pump();
 
     expect(find.text('any error'), findsOneWidget);
+  });
+
+  testWidgets('Should present no error if email is valid and emailErrorController is null',
+      (WidgetTester tester) async {
+    await loadPage(tester);
+
+    emailErrorController.add(null);
+    await tester.pump();
+
+    final emailTextChildren = find.descendant(of: find.bySemanticsLabel('Email'), matching: find.byType(Text));
+    expect(emailTextChildren, findsOneWidget);
+  });
+
+  testWidgets('Should present no error if email is valid and emailErrorController is empty',
+      (WidgetTester tester) async {
+    await loadPage(tester);
+
+    emailErrorController.add('');
+    await tester.pump();
+
+    final emailTextChildren = find.descendant(of: find.bySemanticsLabel('Email'), matching: find.byType(Text));
+    expect(emailTextChildren, findsOneWidget);
   });
 }
