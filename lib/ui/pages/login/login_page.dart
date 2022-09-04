@@ -49,13 +49,17 @@ class LoginPage extends StatelessWidget {
                         );
                       }),
                 ),
-                ElevatedButton(
-                  onPressed: null,
-                  style: ButtonStyle(
-                      shape:
-                          MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)))),
-                  child: Text('Entrar'.toUpperCase()),
-                ),
+                StreamBuilder<dynamic>(
+                    stream: presenter.isFormValidStream,
+                    builder: (context, snapshot) {
+                      return ElevatedButton(
+                        onPressed: snapshot.data == true ? () {} : null,
+                        style: ButtonStyle(
+                            shape: MaterialStateProperty.all(
+                                RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)))),
+                        child: Text('Entrar'.toUpperCase()),
+                      );
+                    }),
                 TextButton.icon(onPressed: () {}, icon: const Icon(Icons.person), label: const Text('Criar Conta'))
               ],
             )),

@@ -12,15 +12,18 @@ void main() {
   late LoginPresenterSpy presenter;
   late StreamController<dynamic> emailErrorController;
   late StreamController<dynamic> passwordErrorController;
+  late StreamController<dynamic> isFormValidController;
 
 //continua 8min
   Future<void> loadPage(WidgetTester tester) async {
     presenter = LoginPresenterSpy();
     emailErrorController = StreamController<dynamic>();
     passwordErrorController = StreamController<dynamic>();
+    isFormValidController = StreamController<dynamic>();
 
     when(() => presenter.emailErrorStream).thenAnswer((_) => emailErrorController.stream);
     when(() => presenter.passwordErrorStream).thenAnswer((_) => passwordErrorController.stream);
+    when(() => presenter.isFormValidStream).thenAnswer((_) => isFormValidController.stream);
 
     final loginPage = MaterialApp(home: LoginPage(presenter));
     await tester.pumpWidget(loginPage);
@@ -29,6 +32,7 @@ void main() {
   tearDown(() {
     emailErrorController.close();
     passwordErrorController.close();
+    isFormValidController.close();
   });
 
   testWidgets('Should load with correct initial state', (WidgetTester tester) async {
@@ -41,7 +45,7 @@ void main() {
     expect(passwordTextChildren, findsOneWidget);
 
     final button = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
-    expect(button.onLongPress, null);
+    expect(button.onPressed, null);
   });
 
   testWidgets('Should call validate with correct values', (WidgetTester tester) async {
@@ -116,5 +120,15 @@ void main() {
 
     final passwordTextChildren = find.descendant(of: find.bySemanticsLabel('Senha'), matching: find.byType(Text));
     expect(passwordTextChildren, findsOneWidget);
+  });
+
+  testWidgets('Should enable button if form is valid', (WidgetTester tester) async {
+    await loadPage(tester);
+
+    isFormValidController.add(true);
+    await tester.pump();
+
+    final button = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
+    expect(button.onPressed, isNotNull);
   });
 }
