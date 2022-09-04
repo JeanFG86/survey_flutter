@@ -9,7 +9,7 @@ import 'package:mocktail/mocktail.dart';
 
 class LoginPresenterSpy extends Mock implements LoginPresenter {
   final StreamController<UIError?> emailErrorController = StreamController<UIError?>();
-  final StreamController<String?> passwordErrorController = StreamController<String?>();
+  final StreamController<UIError?> passwordErrorController = StreamController<UIError?>();
   final StreamController<bool> isFormValidController = StreamController<bool>();
   final StreamController<bool> isLoadindController = StreamController<bool>();
   final StreamController<String?> mainErrorController = StreamController<String?>();
@@ -25,7 +25,7 @@ class LoginPresenterSpy extends Mock implements LoginPresenter {
 
   void emitEmailError(UIError error) => emailErrorController.add(error);
   void emitEmailValid() => emailErrorController.add(null);
-  void emitPasswordError(String error) => passwordErrorController.add(error);
+  void emitPasswordError(UIError error) => passwordErrorController.add(error);
   void emitPasswordValid() => passwordErrorController.add(null);
   void emitFormError() => isFormValidController.add(false);
   void emitLoading([bool show = true]) => isLoadindController.add(show);
@@ -103,21 +103,19 @@ void main() {
   testWidgets('Should present error if password is invalid', (WidgetTester tester) async {
     await loadPage(tester);
 
-    presenter.emitPasswordError('any error');
+    presenter.emitPasswordError(UIError.unexpected);
     await tester.pump();
 
     expect(find.text('any error'), findsOneWidget);
   });
 
-  testWidgets('Should present no error if password is valid and emailErrorController is empty',
-      (WidgetTester tester) async {
+  testWidgets('Should present no error if password is valid', (WidgetTester tester) async {
     await loadPage(tester);
 
-    presenter.emitPasswordError('');
+    presenter.emitPasswordValid();
     await tester.pump();
 
-    final passwordTextChildren = find.descendant(of: find.bySemanticsLabel('Senha'), matching: find.byType(Text));
-    expect(passwordTextChildren, findsOneWidget);
+    expect(find.descendant(of: find.bySemanticsLabel('Senha'), matching: find.byType(Text)), findsOneWidget);
   });
 
   testWidgets('Should enable button if form is valid', (WidgetTester tester) async {
