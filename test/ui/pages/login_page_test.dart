@@ -3,15 +3,16 @@ import 'dart:async';
 import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:survey_flutter/ui/helpers/errors/ui_error.dart';
 import 'package:survey_flutter/ui/pages/pages.dart';
 import 'package:mocktail/mocktail.dart';
 
 class LoginPresenterSpy extends Mock implements LoginPresenter {
-  final StreamController<dynamic> emailErrorController = StreamController<dynamic>();
-  final StreamController<dynamic> passwordErrorController = StreamController<dynamic>();
-  final StreamController<dynamic> isFormValidController = StreamController<dynamic>();
-  final StreamController<dynamic> isLoadindController = StreamController<dynamic>();
-  final StreamController<dynamic> mainErrorController = StreamController<dynamic>();
+  final StreamController<UIError?> emailErrorController = StreamController<UIError?>();
+  final StreamController<String?> passwordErrorController = StreamController<String?>();
+  final StreamController<bool> isFormValidController = StreamController<bool>();
+  final StreamController<bool> isLoadindController = StreamController<bool>();
+  final StreamController<String?> mainErrorController = StreamController<String?>();
 
   LoginPresenterSpy() {
     when(() => auth()).thenAnswer((_) async => _);
@@ -22,7 +23,7 @@ class LoginPresenterSpy extends Mock implements LoginPresenter {
     when(() => isLoadingStream).thenAnswer((_) => isLoadindController.stream);
   }
 
-  void emitEmailError(String error) => emailErrorController.add(error);
+  void emitEmailError(UIError error) => emailErrorController.add(error);
   void emitEmailValid() => emailErrorController.add(null);
   void emitPasswordError(String error) => passwordErrorController.add(error);
   void emitPasswordValid() => passwordErrorController.add(null);
@@ -84,21 +85,19 @@ void main() {
   testWidgets('Should present error if email is invalid', (WidgetTester tester) async {
     await loadPage(tester);
 
-    presenter.emitEmailError('any error');
+    presenter.emitEmailError(UIError.unexpected);
     await tester.pump();
 
     expect(find.text('any error'), findsOneWidget);
   });
 
-  testWidgets('Should present no error if email is valid and emailErrorController is empty',
-      (WidgetTester tester) async {
+  testWidgets('Should present no error if email is valid', (WidgetTester tester) async {
     await loadPage(tester);
 
-    presenter.emitEmailError('');
+    presenter.emitEmailValid();
     await tester.pump();
 
-    final emailTextChildren = find.descendant(of: find.bySemanticsLabel('Email'), matching: find.byType(Text));
-    expect(emailTextChildren, findsOneWidget);
+    expect(find.descendant(of: find.bySemanticsLabel('Email'), matching: find.byType(Text)), findsOneWidget);
   });
 
   testWidgets('Should present error if password is invalid', (WidgetTester tester) async {
