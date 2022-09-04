@@ -14,7 +14,6 @@ void main() {
   late StreamController<dynamic> passwordErrorController;
   late StreamController<dynamic> isFormValidController;
 
-//continua 8min
   Future<void> loadPage(WidgetTester tester) async {
     presenter = LoginPresenterSpy();
     emailErrorController = StreamController<dynamic>();
@@ -130,5 +129,15 @@ void main() {
 
     final button = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
     expect(button.onPressed, isNotNull);
+  });
+
+  testWidgets('Should disable button if form is invalid', (WidgetTester tester) async {
+    await loadPage(tester);
+
+    isFormValidController.add(false);
+    await tester.pump();
+
+    final button = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
+    expect(button.onPressed, isNull);
   });
 }
