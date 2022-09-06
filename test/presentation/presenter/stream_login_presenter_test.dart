@@ -1,51 +1,30 @@
-import 'dart:async';
-
 import 'package:faker/faker.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:survey_flutter/presentation/presenter/presenter.dart';
+import 'package:survey_flutter/presentation/protocols/validation.dart';
 import 'package:test/test.dart';
 
-abstract class Validation {
-  String? validate({required String field, required String value});
-}
+class ValidationSpy extends Mock implements Validation {
+  ValidationSpy() {
+    mockValidation();
+  }
 
-class LoginState {
-  String? emailError;
-}
+  When mockValidationCall(String? field) => when(() => validate(field: field ?? 'field', value: 'value'));
 
-class StreamLoginPresenter {
-  final Validation validation;
-  final _controller = StreamController<LoginState>.broadcast();
-
-  final _state = LoginState();
-
-  Stream<String?> get emailErrorStream => _controller.stream.map((state) => state.emailError);
-
-  StreamLoginPresenter({required this.validation});
-
-  void validateEmail(String email) {
-    _state.emailError = validation.validate(field: 'email', value: email);
-    _controller.add(_state);
+  void mockValidation({String? field, String? value}) {
+    mockValidationCall(field).thenReturn(value);
   }
 }
-
-class ValidationSpy extends Mock implements Validation {}
 
 void main() {
   late StreamLoginPresenter sut;
   late ValidationSpy validation;
   late String email;
 
-  When mockValidationCall(String? field) => when(() => validation.validate(field: field ?? 'field', value: 'value'));
-
-  void mockValidation({String? field, String? value}) {
-    mockValidationCall(field).thenReturn(value);
-  }
-
   setUp(() {
     validation = ValidationSpy();
     sut = StreamLoginPresenter(validation: validation);
     email = faker.internet.email();
-    mockValidation();
   });
 
   test('Should call Validation with correct email', () {
@@ -54,8 +33,8 @@ void main() {
     verify(() => validation.validate(field: 'email', value: email)).called(1);
   });
 
-  test('Should emit email error if validation fails', () {
-    mockValidation(value: 'error');
+  test('Should emit email error if validation fails', () async {
+    validation.mockValidation(value: 'error');
 
     expectLater(sut.emailErrorStream, emits('error'));
 
