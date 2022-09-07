@@ -37,8 +37,11 @@ void main() {
     validation.mockValidation(value: 'error');
 
     sut.emailErrorStream.listen(expectAsync1((error) => expect(error, null)));
+    //sut.emailErrorStream.listen(expectAsync1((error) => expect(error, 'error')));
+    sut.isFormValidStream.listen(expectAsync1((isValid) => expect(isValid, false)));
 
     sut.validateEmail(email);
     sut.validateEmail(email);
   });
 }
+//continua 8min50
