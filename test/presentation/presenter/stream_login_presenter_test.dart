@@ -20,11 +20,13 @@ void main() {
   late StreamLoginPresenter sut;
   late ValidationSpy validation;
   late String email;
+  late String password;
 
   setUp(() {
     validation = ValidationSpy();
     sut = StreamLoginPresenter(validation: validation);
     email = faker.internet.email();
+    password = faker.internet.password();
   });
 
   test('Should call Validation with correct email', () {
@@ -50,5 +52,11 @@ void main() {
 
     sut.validateEmail(email);
     sut.validateEmail(email);
+  });
+
+  test('Should call Validation with correct password', () {
+    sut.validatePassword(password);
+
+    verify(() => validation.validate(field: 'password', value: password)).called(1);
   });
 }
