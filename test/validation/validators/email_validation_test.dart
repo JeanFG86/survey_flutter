@@ -1,19 +1,5 @@
-import 'package:survey_flutter/validation/protocols/field_validation.dart';
+import 'package:survey_flutter/validation/validators/validators.dart';
 import 'package:test/test.dart';
-
-class EmailValidation implements FieldValidation {
-  final String field;
-
-  EmailValidation(this.field);
-
-  @override
-  String? validate(String? value) {
-    if (value == null || value.isEmpty) return null;
-    final regex = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
-    final isValid = regex.hasMatch(value);
-    return isValid ? null : 'Campo inválido';
-  }
-}
 
 void main() {
   late EmailValidation sut;
