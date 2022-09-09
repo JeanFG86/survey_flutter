@@ -1,6 +1,9 @@
 import 'dart:async';
 
+import 'package:get/get.dart';
 import 'package:survey_flutter/domain/helpers/domain_error.dart';
+import 'package:survey_flutter/ui/helpers/errors/errors.dart';
+import 'package:survey_flutter/ui/pages/login/login_presenter.dart';
 
 import '../../domain/usecases/usecases.dart';
 import '../protocols/protocols.dart';
@@ -15,15 +18,21 @@ class LoginState {
   bool get isFormValid => emailError == null && passwordError == null && email != null && password != null;
 }
 
-class StreamLoginPresenter {
+class StreamLoginPresenter implements LoginPresenter {
   final Validation validation;
   final Authentication authentication;
   final _controller = StreamController<LoginState>.broadcast();
 
   final _state = LoginState();
 
-  Stream<String?> get emailErrorStream => _controller.stream.map((state) => state.emailError).distinct();
-  Stream<String?> get passwordErrorStream => _controller.stream.map((state) => state.passwordError).distinct();
+  final _emailError = Rx<UIError?>(null);
+  final _passwordError = Rx<UIError?>(null);
+
+  String? _email;
+  String? _password;
+
+  Stream<UIError?> get emailErrorStream => _emailError.stream;
+  Stream<UIError?> get passwordErrorStream => _passwordError.stream;
   Stream<String?> get mainErrorStream => _controller.stream.map((state) => state.mainError).distinct();
   Stream<bool> get isFormValidStream => _controller.stream.map((state) => state.isFormValid).distinct();
   Stream<bool> get isLoadingStream => _controller.stream.map((state) => state.isLoading).distinct();
@@ -43,6 +52,24 @@ class StreamLoginPresenter {
     _state.passwordError = validation.validate(field: 'password', value: password);
     _update();
   }
+
+/*
+  UIError? _validateField(String field, String value) {
+    final error = validation.validate(field: field, value: value);
+    switch (error) {
+      case ValidationError.invalidField:
+        return UIError.invalidField;
+      case ValidationError.requiredField:
+        return UIError.requiredField;
+      default:
+        return null;
+    }
+  }
+
+  void _validateForm() {
+    isFormValid = _emailError.value == null && _passwordError.value == null && _email != null && _password != null;
+  }
+  */
 
   Future<void> auth() async {
     if (_state.email != null && _state.password != null) {
