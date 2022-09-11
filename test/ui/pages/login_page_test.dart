@@ -30,7 +30,7 @@ class LoginPresenterSpy extends Mock implements LoginPresenter {
   void emitFormError() => isFormValidController.add(false);
   void emitLoading([bool show = true]) => isLoadindController.add(show);
   void emitFormValid() => isFormValidController.add(true);
-  void emitMainError(String error) => mainErrorController.add(error);
+  void emitMainError(String? error) => mainErrorController.add(error);
 
   @override
   void dispose() {
@@ -56,18 +56,20 @@ void main() {
     presenter.dispose();
   });
 
-  testWidgets('Should load with correct initial state', (WidgetTester tester) async {
+  testWidgets('Should handle loading correctly', (WidgetTester tester) async {
     await loadPage(tester);
 
-    final emailTextChildren = find.descendant(of: find.bySemanticsLabel('Email'), matching: find.byType(Text));
-    expect(emailTextChildren, findsOneWidget);
+    presenter.emitLoading();
+    await tester.pump();
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
-    final passwordTextChildren = find.descendant(of: find.bySemanticsLabel('Senha'), matching: find.byType(Text));
-    expect(passwordTextChildren, findsOneWidget);
-
-    final button = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
-    expect(button.onPressed, null);
+    presenter.emitLoading(false);
+    await tester.pump();
     expect(find.byType(CircularProgressIndicator), findsNothing);
+
+    presenter.emitLoading();
+    await tester.pump();
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
 
   testWidgets('Should call validate with correct values', (WidgetTester tester) async {

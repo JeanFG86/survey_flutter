@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import '../../../helpers/errors/errors.dart';
+import '../../../helpers/errors/ui_error.dart';
 import '../../pages.dart';
 
 // ignore: use_key_in_widget_constructors

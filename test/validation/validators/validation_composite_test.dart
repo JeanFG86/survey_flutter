@@ -1,9 +1,21 @@
 import 'package:mocktail/mocktail.dart';
+import 'package:survey_flutter/presentation/protocols/validation.dart';
 import 'package:survey_flutter/validation/protocols/field_validation.dart';
 import 'package:survey_flutter/validation/validators/validators.dart';
 import 'package:test/test.dart';
 
-class FieldValidationSpy extends Mock implements FieldValidation {}
+class FieldValidationSpy extends Mock implements FieldValidation {
+  FieldValidationSpy() {
+    mockValidation();
+    mockFieldName('any_field');
+  }
+
+  When mockValidationCall() => when(() => validate(any()));
+  void mockValidation() => mockValidationCall().thenReturn(null);
+  void mockValidationError(ValidationError error) => mockValidationCall().thenReturn(error);
+
+  void mockFieldName(String fieldName) => when(() => field).thenReturn(fieldName);
+}
 
 void main() {
   late ValidationComposite sut;
@@ -11,44 +23,27 @@ void main() {
   late FieldValidationSpy validation2;
   late FieldValidationSpy validation3;
 
-  void mockValidation1(String? error) {
-    when(() => validation1.validate(any())).thenReturn(error);
-  }
-
-  void mockValidation2(String? error) {
-    when(() => validation2.validate(any())).thenReturn(error);
-  }
-
-  void mockValidation3(String? error) {
-    when(() => validation2.validate(any())).thenReturn(error);
-  }
-
   setUp(() {
     validation1 = FieldValidationSpy();
-    when(() => validation1.field).thenReturn('any_field');
-    mockValidation1(null);
+    validation1.mockFieldName('other_field');
     validation2 = FieldValidationSpy();
-    when(() => validation2.field).thenReturn('any_field');
-    mockValidation2(null);
     validation3 = FieldValidationSpy();
-    when(() => validation3.field).thenReturn('other_field');
-    mockValidation3(null);
     sut = ValidationComposite([validation1, validation2, validation3]);
   });
 
-  test('Should return null if all validations return null or empty', () {
-    final error = sut.validate(field: 'any_field', value: 'any_value');
+  test('Should return null if all validations returns null or empty', () {
+    final error = sut.validate(field: 'any_field', input: {'any_field': 'any_value'});
 
     expect(error, null);
   });
 
   test('Should return the first error', () {
-    mockValidation1('error_1');
-    mockValidation2('error_2');
-    mockValidation3('error_3');
+    validation1.mockValidationError(ValidationError.invalidField);
+    validation2.mockValidationError(ValidationError.requiredField);
+    validation3.mockValidationError(ValidationError.invalidField);
 
-    final error = sut.validate(field: 'any_field', value: 'any_value');
+    final error = sut.validate(field: 'any_field', input: {'any_field': 'any_value'});
 
-    expect(error, 'error_1');
+    expect(error, ValidationError.requiredField);
   });
 }

@@ -40,11 +40,13 @@ class _LoginPageState extends State<LoginPage> {
               hideLoading(context);
             }
           });
+
           widget.presenter.mainErrorStream.listen((error) {
             if (error != null) {
               showErrorMessage(context, error);
             }
           });
+
           return GestureDetector(
             onTap: _hideKeyboard,
             child: SingleChildScrollView(
@@ -53,7 +55,7 @@ class _LoginPageState extends State<LoginPage> {
                 HeadLine1(text: 'Login'),
                 Padding(
                   padding: const EdgeInsets.all(32),
-                  child: Provider(
+                  child: ListenableProvider(
                     create: (_) => widget.presenter,
                     child: Form(
                         child: Column(
