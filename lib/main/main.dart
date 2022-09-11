@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:provider/provider.dart';
 
 import '../ui/components/components.dart';
 import 'factories/factories.dart';
 
 void main() {
-  //Provider.debugCheckInvalidValueType = null;
   runApp(const App());
 }
 
