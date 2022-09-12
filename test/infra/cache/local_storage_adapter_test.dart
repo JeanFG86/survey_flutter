@@ -41,7 +41,7 @@ void main() {
     value = faker.randomGenerator.string(50);
     result = faker.randomGenerator.string(50);
     localStorage = FlutterSecurityStorageSpy();
-    localStorage.mockFetch(key);
+    localStorage.mockFetch(result);
     sut = LocalStorageAdapter(secureStorage: localStorage);
   });
 
@@ -49,5 +49,12 @@ void main() {
     await sut.saveSecure(key: key, value: value);
 
     verify(() => localStorage.write(key: key, value: value));
+  });
+
+  test('Should throw if save secure throws', () async {
+    localStorage.mockSaveError();
+    final future = sut.saveSecure(key: key, value: value);
+
+    expect(future, throwsA(TypeMatcher<Exception>()));
   });
 }
