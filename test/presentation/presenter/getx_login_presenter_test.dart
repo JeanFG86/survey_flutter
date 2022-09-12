@@ -163,4 +163,15 @@ void main() {
 
     await sut.auth();
   });
+
+  test('Should emit UnexpectedError if SaveCurrentAccount fails', () async {
+    saveCurrentAccount.mockSaveError();
+    sut.validateEmail(email);
+    sut.validatePassword(password);
+
+    expectLater(sut.isLoadingStream, emitsInOrder([true, false]));
+    sut.mainErrorStream.listen(expectAsync1((error) => expect(error, 'Algo errado aconteceu')));
+
+    await sut.auth();
+  });
 }
