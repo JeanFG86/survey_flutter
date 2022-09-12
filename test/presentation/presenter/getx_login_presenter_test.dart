@@ -2,7 +2,7 @@ import 'package:faker/faker.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:survey_flutter/domain/entities/account_entity.dart';
 import 'package:survey_flutter/domain/helpers/helpers.dart';
-import 'package:survey_flutter/domain/usecases/authentication.dart';
+import 'package:survey_flutter/domain/usecases/usecases.dart';
 import 'package:survey_flutter/presentation/presenter/presenter.dart';
 import 'package:survey_flutter/presentation/protocols/validation.dart';
 import 'package:survey_flutter/ui/helpers/errors/ui_error.dart';
@@ -26,19 +26,48 @@ class AuthenticationSpy extends Mock implements Authentication {
   void mockAuthenticationError(DomainError error) => mockAuthenticationCall().thenThrow(error);
 }
 
+class SaveCurrentAccountSpy extends Mock implements SaveCurrentAccount {
+  SaveCurrentAccountSpy() {
+    mockSave();
+  }
+
+  When mockSaveCall() => when(() => save(any()));
+  void mockSave() => mockSaveCall().thenAnswer((_) async => _);
+  void mockSaveError() => mockSaveCall().thenThrow(DomainError.unexpected);
+}
+
+class EntityFactory {
+  static AccountEntity makeAccount() => AccountEntity(token: faker.guid.guid());
+}
+
+class ParamsFactory {
+  static AuthenticationParams makeAuthentication() =>
+      AuthenticationParams(email: faker.internet.email(), secret: faker.internet.password());
+}
+
 void main() {
   late GetxLoginPresenter sut;
   late AuthenticationSpy authentication;
   late ValidationSpy validation;
+  late SaveCurrentAccountSpy saveCurrentAccount;
   late String email;
   late String password;
+  late String token;
 
   setUp(() {
     validation = ValidationSpy();
     authentication = AuthenticationSpy();
-    sut = GetxLoginPresenter(validation: validation, authentication: authentication);
+    saveCurrentAccount = SaveCurrentAccountSpy();
+    sut = GetxLoginPresenter(
+        validation: validation, authentication: authentication, saveCurrentAccount: saveCurrentAccount);
     email = faker.internet.email();
     password = faker.internet.password();
+    token = faker.guid.guid();
+  });
+
+  setUpAll(() {
+    registerFallbackValue(ParamsFactory.makeAuthentication());
+    registerFallbackValue(EntityFactory.makeAccount());
   });
 
   test('Should call Validation with correct email', () {
@@ -93,6 +122,15 @@ void main() {
     await sut.auth();
 
     verify(() => authentication.auth(AuthenticationParams(email: email, secret: password))).called(1);
+  });
+
+  test('Should call SaveCurrentAccount with correct value', () async {
+    sut.validateEmail(email);
+    sut.validatePassword(password);
+
+    await sut.auth();
+
+    verify(() => saveCurrentAccount.save(AccountEntity(token: token))).called(1);
   });
 
   test('Should emit correct events on Authentication success', () async {

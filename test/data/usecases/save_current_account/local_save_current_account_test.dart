@@ -23,7 +23,7 @@ void main() {
 
   setUp(() {
     saveSecureCacheStorage = SecureCacheStorageSpy();
-    account = AccountEntity(faker.guid.guid());
+    account = AccountEntity(token: faker.guid.guid());
     sut = LocalSaveCurrentAccount(saveSecureCacheStorage: saveSecureCacheStorage);
   });
 
