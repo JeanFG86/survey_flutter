@@ -1,29 +1,10 @@
 import 'package:faker/faker.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:survey_flutter/data/cache/cache.dart';
+import 'package:survey_flutter/data/usecases/load_current_account/load_current_account.dart';
 import 'package:survey_flutter/domain/entities/account_entity.dart';
 import 'package:survey_flutter/domain/helpers/helpers.dart';
-import 'package:survey_flutter/domain/usecases/usecases.dart';
 import 'package:test/test.dart';
-
-class LocalLoadCurrentAccount implements LoadCurrentAccount {
-  final FetchSecureCacheStorage fetchSecureCacheStorage;
-
-  LocalLoadCurrentAccount({required this.fetchSecureCacheStorage});
-
-  @override
-  Future<AccountEntity> load() async {
-    try {
-      final token = await fetchSecureCacheStorage.fetchSecure('token');
-      return AccountEntity(token: token!);
-    } catch (erorr) {
-      throw DomainError.unexpected;
-    }
-  }
-}
-
-abstract class FetchSecureCacheStorage {
-  Future<String?> fetchSecure(String key);
-}
 
 class FetchSecureCacheStorageSpy extends Mock implements FetchSecureCacheStorage {
   FetchSecureCacheStorageSpy();
