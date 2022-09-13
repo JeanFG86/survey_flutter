@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get/get.dart';
 import 'package:survey_flutter/ui/helpers/errors/ui_error.dart';
 import 'package:survey_flutter/ui/pages/pages.dart';
 import 'package:mocktail/mocktail.dart';
@@ -13,12 +14,14 @@ class LoginPresenterSpy extends Mock implements LoginPresenter {
   final StreamController<bool> isFormValidController = StreamController<bool>();
   final StreamController<bool> isLoadindController = StreamController<bool>();
   final StreamController<String?> mainErrorController = StreamController<String?>();
+  final StreamController<String?> navigateToController = StreamController<String?>();
 
   LoginPresenterSpy() {
     when(() => auth()).thenAnswer((_) async => _);
     when(() => emailErrorStream).thenAnswer((_) => emailErrorController.stream);
     when(() => passwordErrorStream).thenAnswer((_) => passwordErrorController.stream);
     when(() => mainErrorStream).thenAnswer((_) => mainErrorController.stream);
+    when(() => navigateToStream).thenAnswer((_) => navigateToController.stream);
     when(() => isFormValidStream).thenAnswer((_) => isFormValidController.stream);
     when(() => isLoadingStream).thenAnswer((_) => isLoadindController.stream);
   }
@@ -39,6 +42,7 @@ class LoginPresenterSpy extends Mock implements LoginPresenter {
     mainErrorController.close();
     isFormValidController.close();
     isLoadindController.close();
+    navigateToController.close();
   }
 }
 
@@ -48,7 +52,17 @@ void main() {
   Future<void> loadPage(WidgetTester tester) async {
     presenter = LoginPresenterSpy();
 
-    final loginPage = MaterialApp(home: LoginPage(presenter));
+    final loginPage = GetMaterialApp(
+      initialRoute: '/login',
+      getPages: [
+        GetPage(name: '/login', page: () => LoginPage(presenter)),
+        GetPage(
+            name: '/any_route',
+            page: () => const Scaffold(
+                  body: Text('fake page'),
+                ))
+      ],
+    );
     await tester.pumpWidget(loginPage);
   }
 
@@ -176,5 +190,15 @@ void main() {
     await tester.pump();
 
     expect(find.text('Credenciais inválidas.'), findsOneWidget);
+  });
+
+  testWidgets('Should change pages', (WidgetTester tester) async {
+    await loadPage(tester);
+
+    presenter.navigateToController.add('/any_route');
+    await tester.pumpAndSettle();
+
+    expect(Get.currentRoute, '/any_route');
+    expect(find.text('fake page'), findsOneWidget);
   });
 }
