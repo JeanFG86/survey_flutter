@@ -1,6 +1,7 @@
 import 'package:faker/faker.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:survey_flutter/domain/entities/account_entity.dart';
+import 'package:survey_flutter/domain/helpers/helpers.dart';
 import 'package:survey_flutter/domain/usecases/usecases.dart';
 import 'package:test/test.dart';
 
@@ -11,8 +12,12 @@ class LocalLoadCurrentAccount implements LoadCurrentAccount {
 
   @override
   Future<AccountEntity> load() async {
-    final token = await fetchSecureCacheStorage.fetchSecure('token');
-    return AccountEntity(token: token!);
+    try {
+      final token = await fetchSecureCacheStorage.fetchSecure('token');
+      return AccountEntity(token: token!);
+    } catch (erorr) {
+      throw DomainError.unexpected;
+    }
   }
 }
 
@@ -50,5 +55,13 @@ void main() {
     final account = await sut.load();
 
     expect(account, AccountEntity(token: token));
+  });
+
+  test('Should throw UnexpectedError if FetchSecureCacheStorage throws', () async {
+    secureCacheStorage.mockFetchError();
+
+    final future = sut.load();
+
+    expect(future, throwsA(DomainError.unexpected));
   });
 }
