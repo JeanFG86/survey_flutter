@@ -55,5 +55,11 @@ void main() {
 
       verify(() => localStorage.read(key: key));
     });
+
+    test('Should return correct value on success', () async {
+      final fetchedValue = await sut.fetchSecure(key);
+
+      expect(fetchedValue, result);
+    });
   });
 }
