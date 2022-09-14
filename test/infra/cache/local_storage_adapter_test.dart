@@ -61,5 +61,13 @@ void main() {
 
       expect(fetchedValue, result);
     });
+
+    test('Should throw if fetch secure throws', () async {
+      localStorage.mockFetchError();
+
+      final future = sut.fetchSecure(key);
+
+      expect(future, throwsA(const TypeMatcher<Exception>()));
+    });
   });
 }
