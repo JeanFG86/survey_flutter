@@ -17,14 +17,16 @@ class App extends StatelessWidget {
       title: 'Survey',
       debugShowCheckedModeBanner: false,
       theme: makeAppTheme(),
-      initialRoute: '/login',
+      initialRoute: '/',
       getPages: [
-        GetPage(name: '/login', page: makeLoginPage),
+        GetPage(name: '/', page: makeSplashPage, transition: Transition.fade),
+        GetPage(name: '/login', page: makeLoginPage, transition: Transition.fadeIn),
         GetPage(
             name: '/surveys',
             page: () => const Scaffold(
                   body: Text('Enquetes'),
-                ))
+                ),
+            transition: Transition.fadeIn),
       ],
     );
   }
