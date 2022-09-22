@@ -4,15 +4,15 @@ extension UIErrorExtension on UIError {
   String get description {
     switch (this) {
       case UIError.requiredField:
-        return '';
+        return 'Campo obrigratório.';
       case UIError.invalidField:
-        return '';
+        return 'Campo inválido.';
       case UIError.invalidCredentials:
-        return '';
+        return 'Credenciais inválidas.';
       case UIError.emailInUse:
-        return '';
+        return 'E-mail já informado.';
       default:
-        return 'any error';
+        return 'Algo errado aconteceu. Tente novamente em breve.';
     }
   }
 }

@@ -13,7 +13,7 @@ class LoginPresenterSpy extends Mock implements LoginPresenter {
   final StreamController<UIError?> passwordErrorController = StreamController<UIError?>();
   final StreamController<bool> isFormValidController = StreamController<bool>();
   final StreamController<bool> isLoadindController = StreamController<bool>();
-  final StreamController<String?> mainErrorController = StreamController<String?>();
+  final StreamController<UIError?> mainErrorController = StreamController<UIError?>();
   final StreamController<String?> navigateToController = StreamController<String?>();
 
   LoginPresenterSpy() {
@@ -33,7 +33,7 @@ class LoginPresenterSpy extends Mock implements LoginPresenter {
   void emitFormError() => isFormValidController.add(false);
   void emitLoading([bool show = true]) => isLoadindController.add(show);
   void emitFormValid() => isFormValidController.add(true);
-  void emitMainError(String? error) => mainErrorController.add(error);
+  void emitMainError(UIError error) => mainErrorController.add(error);
 
   @override
   void dispose() {
@@ -101,10 +101,10 @@ void main() {
   testWidgets('Should present error if email is invalid', (WidgetTester tester) async {
     await loadPage(tester);
 
-    presenter.emitEmailError(UIError.unexpected);
+    presenter.emitEmailError(UIError.invalidField);
     await tester.pump();
 
-    expect(find.text('any error'), findsOneWidget);
+    expect(find.text('Campo inválido.'), findsOneWidget);
   });
 
   testWidgets('Should present no error if email is valid', (WidgetTester tester) async {
@@ -116,13 +116,13 @@ void main() {
     expect(find.descendant(of: find.bySemanticsLabel('Email'), matching: find.byType(Text)), findsOneWidget);
   });
 
-  testWidgets('Should present error if password is invalid', (WidgetTester tester) async {
+  testWidgets('Should present error if password is empty', (WidgetTester tester) async {
     await loadPage(tester);
 
-    presenter.emitPasswordError(UIError.unexpected);
+    presenter.emitPasswordError(UIError.requiredField);
     await tester.pump();
 
-    expect(find.text('any error'), findsOneWidget);
+    expect(find.text('Campo obrigratório.'), findsOneWidget);
   });
 
   testWidgets('Should present no error if password is valid', (WidgetTester tester) async {
@@ -186,10 +186,19 @@ void main() {
   testWidgets('Should present error message if authentication fails', (WidgetTester tester) async {
     await loadPage(tester);
 
-    presenter.emitMainError('Credenciais inválidas.');
+    presenter.emitMainError(UIError.invalidCredentials);
     await tester.pump();
 
     expect(find.text('Credenciais inválidas.'), findsOneWidget);
+  });
+
+  testWidgets('Should present error message if authentication throws', (WidgetTester tester) async {
+    await loadPage(tester);
+
+    presenter.emitMainError(UIError.unexpected);
+    await tester.pump();
+
+    expect(find.text('Algo errado aconteceu. Tente novamente em breve.'), findsOneWidget);
   });
 
   testWidgets('Should change pages', (WidgetTester tester) async {

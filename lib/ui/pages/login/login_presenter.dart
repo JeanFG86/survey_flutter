@@ -4,9 +4,9 @@ import 'package:survey_flutter/ui/helpers/errors/ui_error.dart';
 abstract class LoginPresenter implements Listenable {
   Stream<UIError?> get emailErrorStream;
   Stream<UIError?> get passwordErrorStream;
+  Stream<UIError?> get mainErrorStream;
   Stream<bool> get isFormValidStream;
   Stream<bool> get isLoadingStream;
-  Stream<String?> get mainErrorStream;
   Stream<String?> get navigateToStream;
 
   void validateEmail(String email);

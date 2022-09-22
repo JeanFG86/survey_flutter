@@ -13,7 +13,7 @@ class GetxLoginPresenter extends GetxController implements LoginPresenter {
 
   final _emailError = Rx<UIError?>(null);
   final _passwordError = Rx<UIError?>(null);
-  final _mainError = Rx<String?>(null);
+  final _mainError = Rx<UIError?>(null);
   final _navigateTo = Rx<String?>(null);
   final _isFormValid = false.obs;
   final _isLoading = false.obs;
@@ -26,7 +26,7 @@ class GetxLoginPresenter extends GetxController implements LoginPresenter {
   @override
   Stream<UIError?> get passwordErrorStream => _passwordError.stream;
   @override
-  Stream<String?> get mainErrorStream => _mainError.stream;
+  Stream<UIError?> get mainErrorStream => _mainError.stream;
   @override
   Stream<bool> get isFormValidStream => _isFormValid.stream;
   @override
@@ -77,9 +77,16 @@ class GetxLoginPresenter extends GetxController implements LoginPresenter {
       _isLoading.value = true;
       final account = await authentication.auth(AuthenticationParams(email: _email!, secret: _password!));
       await saveCurrentAccount.save(account);
-      _navigateTo.value = '/surveys';
+      //_navigateTo.value = '/surveys';
+      _navigateTo.value = '/login';
     } on DomainError catch (error) {
-      _mainError.value = error.description;
+      switch (error) {
+        case DomainError.invalidCredentials:
+          _mainError.value = UIError.invalidCredentials;
+          break;
+        default:
+          _mainError.value = UIError.unexpected;
+      }
       _isLoading.value = false;
     }
   }
