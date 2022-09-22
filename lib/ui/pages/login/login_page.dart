@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import '../../helpers/errors/errors.dart';
-import '../../../utils/i18n/i18n.dart';
+import '../../helpers/i18n/i18n.dart';
 import 'components/components.dart';
 import 'login_presenter.dart';
 import '../../components/components.dart';
@@ -55,7 +55,7 @@ class LoginPage extends StatelessWidget {
             child: SingleChildScrollView(
               child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                 const LoginHeader(),
-                HeadLine1(text: 'Login'),
+                HeadLine1(text: R.string.login),
                 Padding(
                   padding: const EdgeInsets.all(32),
                   child: ListenableProvider(
