@@ -2,6 +2,7 @@ import 'package:faker/faker.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:survey_flutter/data/http/http.dart';
 import 'package:survey_flutter/data/usecases/usecases.dart';
+import 'package:survey_flutter/domain/helpers/helpers.dart';
 import 'package:survey_flutter/domain/usecases/usecases.dart';
 import 'package:test/test.dart';
 
@@ -13,20 +14,18 @@ void main() {
   late String url;
   late AddAccountParams params;
 
-/*
-  Map mockValidData() => {'accessToken': faker.guid.guid(), 'name': faker.person.name()};
+  //Map mockValidData() => {'accessToken': faker.guid.guid(), 'name': faker.person.name()};
 
   When mockRequest() =>
       when(() => httpClient.request(url: any(named: 'url'), method: any(named: 'method'), body: any(named: 'body')));
 
-  void mockHttpData(Map data) {
-    mockRequest().thenAnswer((_) async => data);
-  }
+  //void mockHttpData(Map data) {
+  //  mockRequest().thenAnswer((_) async => data);
+  //}
 
   void mockHttpError(HttpError error) {
     mockRequest().thenThrow(error);
   }
-  */
 
   setUp(() {
     httpClient = HttpClientSpy();
@@ -49,5 +48,13 @@ void main() {
           'password': params.password,
           'passwordConfirmation': params.passwordConfirmation
         }));
+  });
+
+  test('Should throw UnexpectedError if HttpClient returns 400', () async {
+    mockHttpError(HttpError.badRequest);
+
+    final future = sut.add(params);
+
+    expect(future, throwsA(DomainError.unexpected));
   });
 }
