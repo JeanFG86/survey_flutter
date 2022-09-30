@@ -14,6 +14,7 @@ class SignUpPresenterSpy extends Mock implements SignUpPresenter {
   final passwordErrorController = StreamController<UIError?>();
   final passwordConfirmationErrorController = StreamController<UIError?>();
   final isFormValidController = StreamController<bool>();
+  final isLoadingController = StreamController<bool>();
 
   SignUpPresenterSpy() {
     when(() => signUp()).thenAnswer((_) async => _);
@@ -22,6 +23,7 @@ class SignUpPresenterSpy extends Mock implements SignUpPresenter {
     when(() => passwordErrorStream).thenAnswer((_) => passwordErrorController.stream);
     when(() => passwordConfirmationErrorStream).thenAnswer((_) => passwordConfirmationErrorController.stream);
     when(() => isFormValidStream).thenAnswer((_) => isFormValidController.stream);
+    when(() => isLoadingStream).thenAnswer((_) => isLoadingController.stream);
   }
 
   void emitNameError(UIError error) => nameErrorController.add(error);
@@ -34,6 +36,7 @@ class SignUpPresenterSpy extends Mock implements SignUpPresenter {
   void emitPasswordConfirmationValid() => passwordConfirmationErrorController.add(null);
   void emitFormValid() => isFormValidController.add(true);
   void emitFormError() => isFormValidController.add(false);
+  void emitLoading([bool show = true]) => isLoadingController.add(show);
 
   @override
   void dispose() {
@@ -173,5 +176,21 @@ void main() {
     await tester.pump();
 
     verify(() => presenter.signUp()).called(1);
+  });
+
+  testWidgets('Should handle loading correctly', (WidgetTester tester) async {
+    await loadPage(tester);
+
+    presenter.emitLoading();
+    await tester.pump();
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+    presenter.emitLoading(false);
+    await tester.pump();
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+
+    presenter.emitLoading();
+    await tester.pump();
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
 }
