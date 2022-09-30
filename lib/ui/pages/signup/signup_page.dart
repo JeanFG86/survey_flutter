@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:survey_flutter/ui/helpers/errors/errors.dart';
 import '../../helpers/i18n/i18n.dart';
 import '../../components/components.dart';
 import 'components/components.dart';
@@ -30,6 +31,11 @@ class SignUpPage extends StatelessWidget {
               showLoading(context);
             } else {
               hideLoading(context);
+            }
+          });
+          presenter.mainErrorStream.listen((error) {
+            if (error != null) {
+              showErrorMessage(context, error.description);
             }
           });
           return GestureDetector(
