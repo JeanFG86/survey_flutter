@@ -13,12 +13,14 @@ class SignUpPresenterSpy extends Mock implements SignUpPresenter {
   final emailErrorController = StreamController<UIError?>();
   final passwordErrorController = StreamController<UIError?>();
   final passwordConfirmationErrorController = StreamController<UIError?>();
+  final isFormValidController = StreamController<bool>();
 
   SignUpPresenterSpy() {
     when(() => nameErrorStream).thenAnswer((_) => nameErrorController.stream);
     when(() => emailErrorStream).thenAnswer((_) => emailErrorController.stream);
     when(() => passwordErrorStream).thenAnswer((_) => passwordErrorController.stream);
     when(() => passwordConfirmationErrorStream).thenAnswer((_) => passwordConfirmationErrorController.stream);
+    when(() => isFormValidStream).thenAnswer((_) => isFormValidController.stream);
   }
 
   void emitNameError(UIError error) => nameErrorController.add(error);
@@ -29,6 +31,8 @@ class SignUpPresenterSpy extends Mock implements SignUpPresenter {
   void emitPasswordValid() => passwordErrorController.add(null);
   void emitPasswordConfirmationError(UIError error) => passwordConfirmationErrorController.add(error);
   void emitPasswordConfirmationValid() => passwordConfirmationErrorController.add(null);
+  void emitFormValid() => isFormValidController.add(true);
+  void emitFormError() => isFormValidController.add(false);
 
   @override
   void dispose() {
@@ -135,5 +139,25 @@ void main() {
     presenter.emitPasswordConfirmationValid();
     await tester.pump();
     expect(find.descendant(of: find.bySemanticsLabel('Confirmar senha'), matching: find.byType(Text)), findsOneWidget);
+  });
+
+  testWidgets('Should enable button if form is valid', (WidgetTester tester) async {
+    await loadPage(tester);
+
+    presenter.emitFormValid();
+    await tester.pump();
+
+    final button = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
+    expect(button.onPressed, isNotNull);
+  });
+
+  testWidgets('Should disable button if form is invalid', (WidgetTester tester) async {
+    await loadPage(tester);
+
+    presenter.emitFormError();
+    await tester.pump();
+
+    final button = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
+    expect(button.onPressed, null);
   });
 }
