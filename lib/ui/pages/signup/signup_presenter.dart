@@ -9,6 +9,7 @@ abstract class SignUpPresenter implements Listenable {
   Stream<UIError?> get mainErrorStream;
   Stream<bool> get isFormValidStream;
   Stream<bool> get isLoadingStream;
+  Stream<String?> get navigateToStream;
 
   void validateName(String name);
   void validateEmail(String email);

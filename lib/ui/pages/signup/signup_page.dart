@@ -5,6 +5,7 @@ import '../../helpers/i18n/i18n.dart';
 import '../../components/components.dart';
 import 'components/components.dart';
 import 'signup_presenter.dart';
+import 'package:get/get.dart';
 
 // ignore: use_key_in_widget_constructors
 class SignUpPage extends StatelessWidget {
@@ -36,6 +37,15 @@ class SignUpPage extends StatelessWidget {
           presenter.mainErrorStream.listen((error) {
             if (error != null) {
               showErrorMessage(context, error.description);
+            }
+          });
+          presenter.navigateToStream.listen((page) {
+            if (page != null && page.isNotEmpty) {
+              //if (clear == true) {
+              //  Get.offAllNamed(page);
+              /// } else {
+              Get.offAllNamed(page);
+              // }
             }
           });
           return GestureDetector(

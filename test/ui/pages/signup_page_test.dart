@@ -16,6 +16,7 @@ class SignUpPresenterSpy extends Mock implements SignUpPresenter {
   final mainErrorController = StreamController<UIError?>();
   final isFormValidController = StreamController<bool>();
   final isLoadingController = StreamController<bool>();
+  final navigateToController = StreamController<String?>();
 
   SignUpPresenterSpy() {
     when(() => signUp()).thenAnswer((_) async => _);
@@ -26,6 +27,7 @@ class SignUpPresenterSpy extends Mock implements SignUpPresenter {
     when(() => mainErrorStream).thenAnswer((_) => mainErrorController.stream);
     when(() => isFormValidStream).thenAnswer((_) => isFormValidController.stream);
     when(() => isLoadingStream).thenAnswer((_) => isLoadingController.stream);
+    when(() => navigateToStream).thenAnswer((_) => navigateToController.stream);
   }
 
   void emitNameError(UIError error) => nameErrorController.add(error);
@@ -40,6 +42,7 @@ class SignUpPresenterSpy extends Mock implements SignUpPresenter {
   void emitFormError() => isFormValidController.add(false);
   void emitLoading([bool show = true]) => isLoadingController.add(show);
   void emitMainError(UIError error) => mainErrorController.add(error);
+  void emitNavigateTo(String route) => navigateToController.add(route);
 
   @override
   void dispose() {
@@ -50,6 +53,7 @@ class SignUpPresenterSpy extends Mock implements SignUpPresenter {
     mainErrorController.close();
     isFormValidController.close();
     isLoadingController.close();
+    navigateToController.close();
   }
 }
 
@@ -59,7 +63,14 @@ void main() {
     presenter = SignUpPresenterSpy();
     final signUpPage = GetMaterialApp(
       initialRoute: '/signup',
-      getPages: [GetPage(name: '/signup', page: () => SignUpPage(presenter))],
+      getPages: [
+        GetPage(name: '/signup', page: () => SignUpPage(presenter)),
+        GetPage(
+            name: '/any_route',
+            page: () => const Scaffold(
+                  body: Text('fake page'),
+                ))
+      ],
     );
     await tester.pumpWidget(signUpPage);
   }
@@ -216,5 +227,15 @@ void main() {
     await tester.pump();
 
     expect(find.text('Algo errado aconteceu. Tente novamente em breve.'), findsOneWidget);
+  });
+
+  testWidgets('Should change pages', (WidgetTester tester) async {
+    await loadPage(tester);
+
+    presenter.navigateToController.add('/any_route');
+    await tester.pumpAndSettle();
+
+    expect(Get.currentRoute, '/any_route');
+    expect(find.text('fake page'), findsOneWidget);
   });
 }
