@@ -8,16 +8,19 @@ class GetxSignUpPresenter extends GetxController {
   final _nameError = Rx<UIError?>(null);
   final _emailError = Rx<UIError?>(null);
   final _passwordError = Rx<UIError?>(null);
+  final _passwordConfirmationError = Rx<UIError?>(null);
   final _isFormValid = false.obs;
 
   String? _name;
   String? _email;
   String? _password;
+  String? _passwordConfirmation;
 
   Stream<UIError?> get emailErrorStream => _emailError.stream;
   Stream<bool> get isFormValidStream => _isFormValid.stream;
   Stream<UIError?> get nameErrorStream => _nameError.stream;
   Stream<UIError?> get passwordErrorStream => _passwordError.stream;
+  Stream<UIError?> get passwordConfirmationErrorStream => _passwordConfirmationError.stream;
 
   set isFormValid(bool value) => _isFormValid.value = value;
 
@@ -41,8 +44,19 @@ class GetxSignUpPresenter extends GetxController {
     _validateForm();
   }
 
+  void validatePasswordConfirmation(String passwordConfirmation) {
+    _passwordConfirmation = passwordConfirmation;
+    _passwordConfirmationError.value = _validateField('passwordConfirmation');
+    _validateForm();
+  }
+
   UIError? _validateField(String field) {
-    final formData = {'name': _name, 'email': _email};
+    final formData = {
+      'name': _name,
+      'email': _email,
+      'password': _password,
+      'passwordConfirmation': _passwordConfirmation
+    };
     final error = validation.validate(field: field, input: formData);
     switch (error) {
       case ValidationError.invalidField:
@@ -55,7 +69,13 @@ class GetxSignUpPresenter extends GetxController {
   }
 
   void _validateForm() {
-    isFormValid =
-        _emailError.value == null && _nameError.value == null && _name != null && _email != null && _password != null;
+    isFormValid = _emailError.value == null &&
+        _nameError.value == null &&
+        _passwordError.value == null &&
+        _passwordConfirmationError.value == null &&
+        _name != null &&
+        _email != null &&
+        _password != null &&
+        _passwordConfirmation != null;
   }
 }
