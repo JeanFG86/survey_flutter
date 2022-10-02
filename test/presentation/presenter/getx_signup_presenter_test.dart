@@ -33,11 +33,13 @@ void main() {
   late GetxSignUpPresenter sut;
   late ValidationSpy validation;
   late String email;
+  late String name;
 
   setUp(() {
     validation = ValidationSpy();
     sut = GetxSignUpPresenter(validation: validation);
     email = faker.internet.email();
+    name = faker.person.name();
   });
 
   setUpAll(() {
@@ -69,5 +71,25 @@ void main() {
 
     sut.validateEmail(email);
     sut.validateEmail(email);
+  });
+
+  test('Should emit invalidFieldError if name is invalid', () {
+    validation.mockValidationError(value: ValidationError.invalidField);
+
+    sut.nameErrorStream.listen(expectAsync1((error) => expect(error, UIError.invalidField)));
+    sut.isFormValidStream.listen(expectAsync1((isValid) => expect(isValid, false)));
+
+    sut.validateName(name);
+    sut.validateName(name);
+  });
+
+  test('Should emit requiredFieldError if name is empty', () {
+    validation.mockValidationError(value: ValidationError.requiredField);
+
+    sut.nameErrorStream.listen(expectAsync1((error) => expect(error, UIError.requiredField)));
+    sut.isFormValidStream.listen(expectAsync1((isValid) => expect(isValid, false)));
+
+    sut.validateName(name);
+    sut.validateName(name);
   });
 }

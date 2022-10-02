@@ -1,21 +1,23 @@
 import 'package:get/get.dart';
-import 'package:survey_flutter/domain/helpers/domain_error.dart';
 import 'package:survey_flutter/ui/helpers/errors/errors.dart';
-
-import '../../domain/usecases/usecases.dart';
 import '../protocols/protocols.dart';
 
 class GetxSignUpPresenter extends GetxController {
   final Validation validation;
 
+  final _nameError = Rx<UIError?>(null);
   final _emailError = Rx<UIError?>(null);
   final _isFormValid = false.obs;
 
+  String? _name;
   String? _email;
   String? _password;
 
   Stream<UIError?> get emailErrorStream => _emailError.stream;
   Stream<bool> get isFormValidStream => _isFormValid.stream;
+  Stream<UIError?> get nameErrorStream => _nameError.stream;
+
+  set isFormValid(bool value) => _isFormValid.value = value;
 
   GetxSignUpPresenter({required this.validation});
 
@@ -25,11 +27,14 @@ class GetxSignUpPresenter extends GetxController {
     _validateForm();
   }
 
+  void validateName(String name) {
+    _name = name;
+    _nameError.value = _validateField('name');
+    _validateForm();
+  }
+
   UIError? _validateField(String field) {
-    final formData = {
-      'email': _email,
-      'password': _password,
-    };
+    final formData = {'name': _name, 'email': _email};
     final error = validation.validate(field: field, input: formData);
     switch (error) {
       case ValidationError.invalidField:
@@ -42,6 +47,7 @@ class GetxSignUpPresenter extends GetxController {
   }
 
   void _validateForm() {
-    _isFormValid.value = false;
+    isFormValid =
+        _emailError.value == null && _nameError.value == null && _name != null && _email != null && _password != null;
   }
 }
