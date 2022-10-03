@@ -1,6 +1,7 @@
 import 'package:faker/faker.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:survey_flutter/domain/entities/account_entity.dart';
+import 'package:survey_flutter/domain/helpers/helpers.dart';
 import 'package:survey_flutter/domain/usecases/usecases.dart';
 import 'package:survey_flutter/presentation/presenter/presenter.dart';
 import 'package:survey_flutter/presentation/protocols/validation.dart';
@@ -19,11 +20,23 @@ class ValidationSpy extends Mock implements Validation {
       mockValidationCall(field).thenReturn(value);
 }
 
+class AddAccountSpy extends Mock implements AddAccount {
+  When mockAddAccountCall() => when(() => add(any()));
+  void mockAddAccount(AccountEntity data) => mockAddAccountCall().thenAnswer((_) async => data);
+  void mockAddAccountError(DomainError error) => mockAddAccountCall().thenThrow(error);
+}
+
 class EntityFactory {
   static AccountEntity makeAccount() => AccountEntity(token: faker.guid.guid());
 }
 
 class ParamsFactory {
+  static AddAccountParams makeAddAccount() => AddAccountParams(
+      name: faker.person.name(),
+      email: faker.internet.email(),
+      password: faker.internet.password(),
+      passwordConfirmation: faker.internet.password());
+
   static AuthenticationParams makeAuthentication() =>
       AuthenticationParams(email: faker.internet.email(), secret: faker.internet.password());
 }
@@ -31,22 +44,27 @@ class ParamsFactory {
 void main() {
   late GetxSignUpPresenter sut;
   late ValidationSpy validation;
+  late AddAccountSpy addAccount;
   late String email;
   late String name;
   late String password;
   late String passwordConfirmation;
+  late AccountEntity account;
 
   setUp(() {
-    validation = ValidationSpy();
-    sut = GetxSignUpPresenter(validation: validation);
     email = faker.internet.email();
     name = faker.person.name();
     password = faker.internet.password();
     passwordConfirmation = faker.internet.password();
+    validation = ValidationSpy();
+    addAccount = AddAccountSpy();
+    account = EntityFactory.makeAccount();
+    addAccount.mockAddAccount(account);
+    sut = GetxSignUpPresenter(validation: validation, addAccount: addAccount);
   });
 
   setUpAll(() {
-    registerFallbackValue(ParamsFactory.makeAuthentication());
+    registerFallbackValue(ParamsFactory.makeAddAccount());
     registerFallbackValue(EntityFactory.makeAccount());
   });
 
@@ -187,5 +205,18 @@ void main() {
     await Future.delayed(Duration.zero);
     sut.validatePasswordConfirmation(passwordConfirmation);
     await Future.delayed(Duration.zero);
+  });
+
+  test('Should call AddAccount with correct values', () async {
+    sut.validateName(name);
+    sut.validateEmail(email);
+    sut.validatePassword(password);
+    sut.validatePasswordConfirmation(passwordConfirmation);
+
+    await sut.signUp();
+
+    verify(() => addAccount.add(
+            AddAccountParams(name: name, email: email, password: password, passwordConfirmation: passwordConfirmation)))
+        .called(1);
   });
 }
