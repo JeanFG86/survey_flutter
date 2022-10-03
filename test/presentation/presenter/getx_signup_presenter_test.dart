@@ -267,4 +267,17 @@ void main() {
 
     await sut.signUp();
   });
+
+  test('Should emit correct events on EmailInUseError', () async {
+    addAccount.mockAddAccountError(DomainError.EmailInUse);
+    sut.validateName(name);
+    sut.validateEmail(email);
+    sut.validatePassword(password);
+    sut.validatePasswordConfirmation(passwordConfirmation);
+
+    expectLater(sut.isLoadingStream, emitsInOrder([true, false]));
+    expectLater(sut.mainErrorStream, emitsInOrder([null, UIError.emailInUse]));
+
+    await sut.signUp();
+  });
 }
