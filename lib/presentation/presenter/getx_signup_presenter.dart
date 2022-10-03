@@ -14,7 +14,9 @@ class GetxSignUpPresenter extends GetxController {
   final _emailError = Rx<UIError?>(null);
   final _passwordError = Rx<UIError?>(null);
   final _passwordConfirmationError = Rx<UIError?>(null);
+  final _mainError = Rx<UIError?>(null);
   final _isFormValid = false.obs;
+  final _isLoading = false.obs;
 
   String? _name;
   String? _email;
@@ -26,8 +28,12 @@ class GetxSignUpPresenter extends GetxController {
   Stream<UIError?> get nameErrorStream => _nameError.stream;
   Stream<UIError?> get passwordErrorStream => _passwordError.stream;
   Stream<UIError?> get passwordConfirmationErrorStream => _passwordConfirmationError.stream;
+  Stream<UIError?> get mainErrorStream => _mainError.stream;
+  Stream<bool> get isLoadingStream => _isLoading.stream;
 
   set isFormValid(bool value) => _isFormValid.value = value;
+  set isLoading(bool value) => _isLoading.value = value;
+  set mainError(UIError? value) => _mainError.value = value;
 
   GetxSignUpPresenter({required this.validation, required this.addAccount, required this.saveCurrentAccount});
 
@@ -86,8 +92,8 @@ class GetxSignUpPresenter extends GetxController {
 
   Future<void> signUp() async {
     try {
-      //mainError = null;
-      //isLoading = true;
+      mainError = null;
+      isLoading = true;
       final account = await addAccount.add(AddAccountParams(
           name: _name!, email: _email!, password: _password!, passwordConfirmation: _passwordConfirmation!));
       await saveCurrentAccount.save(account);
@@ -95,13 +101,13 @@ class GetxSignUpPresenter extends GetxController {
     } on DomainError catch (error) {
       switch (error) {
         case DomainError.EmailInUse:
-          //mainError = UIError.emailInUse;
+          mainError = UIError.emailInUse;
           break;
         default:
-          //mainError = UIError.unexpected;
+          mainError = UIError.unexpected;
           break;
       }
-      //isLoading = false;
+      isLoading = false;
     }
   }
 }

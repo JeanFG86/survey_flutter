@@ -242,4 +242,17 @@ void main() {
 
     verify(() => saveCurrentAccount.save(account)).called(1);
   });
+
+  test('Should emit UnexpectedError if SaveCurrentAccount fails', () async {
+    saveCurrentAccount.mockSaveError();
+    sut.validateName(name);
+    sut.validateEmail(email);
+    sut.validatePassword(password);
+    sut.validatePasswordConfirmation(passwordConfirmation);
+
+    expectLater(sut.mainErrorStream, emitsInOrder([null, UIError.unexpected]));
+    expectLater(sut.isLoadingStream, emitsInOrder([true, false]));
+
+    await sut.signUp();
+  });
 }
