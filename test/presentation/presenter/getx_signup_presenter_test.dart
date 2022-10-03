@@ -26,6 +26,16 @@ class AddAccountSpy extends Mock implements AddAccount {
   void mockAddAccountError(DomainError error) => mockAddAccountCall().thenThrow(error);
 }
 
+class SaveCurrentAccountSpy extends Mock implements SaveCurrentAccount {
+  SaveCurrentAccountSpy() {
+    mockSave();
+  }
+
+  When mockSaveCall() => when(() => save(any()));
+  void mockSave() => mockSaveCall().thenAnswer((_) async => _);
+  void mockSaveError() => mockSaveCall().thenThrow(DomainError.unexpected);
+}
+
 class EntityFactory {
   static AccountEntity makeAccount() => AccountEntity(token: faker.guid.guid());
 }
@@ -45,6 +55,7 @@ void main() {
   late GetxSignUpPresenter sut;
   late ValidationSpy validation;
   late AddAccountSpy addAccount;
+  late SaveCurrentAccountSpy saveCurrentAccount;
   late String email;
   late String name;
   late String password;
@@ -58,9 +69,10 @@ void main() {
     passwordConfirmation = faker.internet.password();
     validation = ValidationSpy();
     addAccount = AddAccountSpy();
+    saveCurrentAccount = SaveCurrentAccountSpy();
     account = EntityFactory.makeAccount();
     addAccount.mockAddAccount(account);
-    sut = GetxSignUpPresenter(validation: validation, addAccount: addAccount);
+    sut = GetxSignUpPresenter(validation: validation, addAccount: addAccount, saveCurrentAccount: saveCurrentAccount);
   });
 
   setUpAll(() {
@@ -218,5 +230,16 @@ void main() {
     verify(() => addAccount.add(
             AddAccountParams(name: name, email: email, password: password, passwordConfirmation: passwordConfirmation)))
         .called(1);
+  });
+
+  test('Should call SaveCurrentAccount with correct value', () async {
+    sut.validateName(name);
+    sut.validateEmail(email);
+    sut.validatePassword(password);
+    sut.validatePasswordConfirmation(passwordConfirmation);
+
+    await sut.signUp();
+
+    verify(() => saveCurrentAccount.save(account)).called(1);
   });
 }

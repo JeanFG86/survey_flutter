@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:survey_flutter/domain/usecases/add_account.dart';
+import 'package:survey_flutter/domain/usecases/save_current_account.dart';
 import 'package:survey_flutter/ui/helpers/errors/errors.dart';
 import '../../domain/helpers/helpers.dart';
 import '../protocols/protocols.dart';
@@ -7,6 +8,7 @@ import '../protocols/protocols.dart';
 class GetxSignUpPresenter extends GetxController {
   final Validation validation;
   final AddAccount addAccount;
+  final SaveCurrentAccount saveCurrentAccount;
 
   final _nameError = Rx<UIError?>(null);
   final _emailError = Rx<UIError?>(null);
@@ -27,7 +29,7 @@ class GetxSignUpPresenter extends GetxController {
 
   set isFormValid(bool value) => _isFormValid.value = value;
 
-  GetxSignUpPresenter({required this.validation, required this.addAccount});
+  GetxSignUpPresenter({required this.validation, required this.addAccount, required this.saveCurrentAccount});
 
   void validateEmail(String email) {
     _email = email;
@@ -88,7 +90,7 @@ class GetxSignUpPresenter extends GetxController {
       //isLoading = true;
       final account = await addAccount.add(AddAccountParams(
           name: _name!, email: _email!, password: _password!, passwordConfirmation: _passwordConfirmation!));
-      //await saveCurrentAccount.save(account);
+      await saveCurrentAccount.save(account);
       //navigateTo = '/surveys';
     } on DomainError catch (error) {
       switch (error) {
