@@ -1,23 +1,7 @@
-import 'package:equatable/equatable.dart';
 import 'package:faker/faker.dart';
 import 'package:survey_flutter/presentation/protocols/validation.dart';
-import 'package:survey_flutter/validation/protocols/field_validation.dart';
+import 'package:survey_flutter/validation/validators/validators.dart';
 import 'package:test/test.dart';
-
-class MinLengthValidation extends Equatable implements FieldValidation {
-  @override
-  final String field;
-  final int size;
-
-  @override
-  List get props => [field, size];
-
-  const MinLengthValidation({required this.field, required this.size});
-
-  @override
-  ValidationError? validate(Map input) =>
-      input[field] != null && input[field].length >= size ? null : ValidationError.invalidField;
-}
 
 void main() {
   late MinLengthValidation sut;
