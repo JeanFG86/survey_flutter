@@ -34,6 +34,11 @@ class GetxLoginPresenter extends GetxController implements LoginPresenter {
   @override
   Stream<String?> get navigateToStream => _navigateTo.stream;
 
+  set isFormValid(bool value) => _isFormValid.value = value;
+  set isLoading(bool value) => _isLoading.value = value;
+  set mainError(UIError? value) => _mainError.value = value;
+  set navigateTo(String value) => _navigateTo.subject.add(value);
+
   GetxLoginPresenter({required this.validation, required this.authentication, required this.saveCurrentAccount});
 
   @override
@@ -77,8 +82,8 @@ class GetxLoginPresenter extends GetxController implements LoginPresenter {
       _isLoading.value = true;
       final account = await authentication.auth(AuthenticationParams(email: _email!, secret: _password!));
       await saveCurrentAccount.save(account);
-      //_navigateTo.value = '/surveys';
-      _navigateTo.value = '/login';
+      _navigateTo.value = '/surveys';
+      //_navigateTo.value = '/login';
     } on DomainError catch (error) {
       switch (error) {
         case DomainError.invalidCredentials:
@@ -89,6 +94,10 @@ class GetxLoginPresenter extends GetxController implements LoginPresenter {
       }
       _isLoading.value = false;
     }
+  }
+
+  void goToSignUp() {
+    navigateTo = '/signup';
   }
 
   @override
