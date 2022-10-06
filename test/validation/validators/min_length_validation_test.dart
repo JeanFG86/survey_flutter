@@ -24,4 +24,9 @@ void main() {
   test('Should return error if value is empty', () {
     expect(sut.validate({'any_field': ''}), ValidationError.invalidField);
   });
+
+  test('Should return error if value is null', () {
+    expect(sut.validate({}), ValidationError.invalidField);
+    expect(sut.validate({'any_field': null}), ValidationError.invalidField);
+  });
 }
