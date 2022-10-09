@@ -13,4 +13,9 @@ void main() {
     final formData = {'any_field': 'any_value', 'other_field': 'other_value'};
     expect(sut.validate(formData), ValidationError.invalidField);
   });
+
+  test('Should return null if values are equal', () {
+    final formData = {'any_field': 'any_value', 'other_field': 'any_value'};
+    expect(sut.validate(formData), null);
+  });
 }
