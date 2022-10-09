@@ -9,7 +9,8 @@ void main() {
     expect(validations, [
       const RequiredFieldValidation('email'),
       const EmailValidation('email'),
-      const RequiredFieldValidation('password')
+      const RequiredFieldValidation('password'),
+      const MinLengthValidation(field: 'password', size: 3)
     ]);
   });
 }
