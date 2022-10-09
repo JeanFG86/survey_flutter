@@ -1,0 +1,16 @@
+import 'package:survey_flutter/presentation/protocols/protocols.dart';
+import 'package:survey_flutter/validation/validators/validators.dart';
+import 'package:test/test.dart';
+
+void main() {
+  late CompareFieldsValidation sut;
+
+  setUp(() {
+    sut = const CompareFieldsValidation(field: 'any_field', fieldToCompare: 'other_field');
+  });
+
+  test('Should return error if values are not equal', () {
+    final formData = {'any_field': 'any_value', 'other_field': 'other_value'};
+    expect(sut.validate(formData), ValidationError.invalidField);
+  });
+}
