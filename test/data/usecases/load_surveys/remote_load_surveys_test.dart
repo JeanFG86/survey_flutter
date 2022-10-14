@@ -26,6 +26,7 @@ class HttpClientSpy extends Mock implements HttpClient {
   When mockRequestCall() =>
       when(() => request(url: any(named: 'url'), method: any(named: 'method'), body: any(named: 'body')));
   void mockRequest(dynamic data) => mockRequestCall().thenAnswer((_) async => data);
+  void mockRequestError(HttpError error) => mockRequestCall().thenThrow(error);
 }
 
 class ApiFactory {
@@ -90,6 +91,14 @@ void main() {
 
   test('Should throw UnexpectedError if HttpClient returns 200 with invalid data', () async {
     httpClient.mockRequest(ApiFactory.makeInvalidList());
+
+    final future = sut.load();
+
+    expect(future, throwsA(DomainError.unexpected));
+  });
+
+  test('Should throw UnexpectedError if HttpClient returns 404', () async {
+    httpClient.mockRequestError(HttpError.notFound);
 
     final future = sut.load();
 
