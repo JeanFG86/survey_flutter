@@ -79,7 +79,7 @@ void main() {
 
     final future = sut.add(params);
 
-    expect(future, throwsA(DomainError.EmailInUse));
+    expect(future, throwsA(DomainError.emailInUse));
   });
 
   test('Should an Account if HttpClient returns 200', () async {

@@ -269,7 +269,7 @@ void main() {
   });
 
   test('Should emit correct events on EmailInUseError', () async {
-    addAccount.mockAddAccountError(DomainError.EmailInUse);
+    addAccount.mockAddAccountError(DomainError.emailInUse);
     sut.validateName(name);
     sut.validateEmail(email);
     sut.validatePassword(password);

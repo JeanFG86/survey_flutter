@@ -117,7 +117,7 @@ class GetxSignUpPresenter extends GetxController implements SignUpPresenter {
       navigateTo = '/surveys';
     } on DomainError catch (error) {
       switch (error) {
-        case DomainError.EmailInUse:
+        case DomainError.emailInUse:
           mainError = UIError.emailInUse;
           break;
         default:
