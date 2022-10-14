@@ -3,6 +3,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:survey_flutter/data/http/http.dart';
 import 'package:survey_flutter/data/models/models.dart';
 import 'package:survey_flutter/domain/entities/entities.dart';
+import 'package:survey_flutter/domain/helpers/helpers.dart';
 import 'package:test/test.dart';
 
 class RemoteLoadSurveys {
@@ -12,8 +13,12 @@ class RemoteLoadSurveys {
   RemoteLoadSurveys({required this.url, required this.httpClient});
 
   Future<List<SurveyEntity>> load() async {
-    final httpResponse = await httpClient.request(url: url, method: 'get');
-    return httpResponse.map<SurveyEntity>((json) => RemoteSurveyModel.fromJson(json).toEntity()).toList();
+    try {
+      final httpResponse = await httpClient.request(url: url, method: 'get');
+      return httpResponse.map<SurveyEntity>((json) => RemoteSurveyModel.fromJson(json).toEntity()).toList();
+    } on HttpError {
+      throw DomainError.unexpected;
+    }
   }
 }
 
@@ -38,6 +43,10 @@ class ApiFactory {
           'date': faker.date.dateTime().toIso8601String(),
         }
       ];
+
+  static Map makeInvalidJson() => {'invalid_key': 'invalid_value'};
+
+  static List<Map> makeInvalidList() => [makeInvalidJson(), makeInvalidJson()];
 }
 
 void main() {
@@ -77,5 +86,13 @@ void main() {
         didAnswer: list[1]['didAnswer'],
       )
     ]);
+  });
+
+  test('Should throw UnexpectedError if HttpClient returns 200 with invalid data', () async {
+    httpClient.mockRequest(ApiFactory.makeInvalidList());
+
+    final future = sut.load();
+
+    expect(future, throwsA(DomainError.unexpected));
   });
 }
