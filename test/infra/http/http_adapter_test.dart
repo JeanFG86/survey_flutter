@@ -8,11 +8,17 @@ import 'package:test/test.dart';
 class ClientSpy extends Mock implements Client {
   ClientSpy() {
     mockPost(200);
+    mockGet(200);
   }
   When mockPostCall() => when(() => this.post(any(), body: any(named: 'body'), headers: any(named: 'headers')));
   void mockPost(int statusCode, {String body = '{"any_key":"any_value"}'}) =>
       mockPostCall().thenAnswer((_) async => Response(body, statusCode));
   void mockPostError() => when(() => mockPostCall().thenThrow(Exception()));
+
+  When mockGetCall() => when(() => this.get(any(), headers: any(named: 'headers')));
+  void mockGet(int statusCode, {String body = '{"any_key":"any_value"}'}) =>
+      mockGetCall().thenAnswer((_) async => Response(body, statusCode));
+  void mockGetError() => when(() => mockGetCall().thenThrow(Exception()));
 }
 
 void main() {
@@ -136,6 +142,14 @@ void main() {
       final future = sut.request(url: url, method: 'post');
 
       expect(future, throwsA(HttpError.serverError));
+    });
+  });
+
+  group('get', () {
+    test('Should call get with correct values', () async {
+      await sut.request(url: url, method: 'get');
+      verify(() =>
+          client.get(Uri.parse(url), headers: {'content-type': 'application/json', 'accept': 'application/json'}));
     });
   });
 }
