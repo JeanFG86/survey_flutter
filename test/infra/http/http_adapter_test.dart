@@ -151,5 +151,19 @@ void main() {
       verify(() =>
           client.get(Uri.parse(url), headers: {'content-type': 'application/json', 'accept': 'application/json'}));
     });
+
+    test('Should return data if get returns 200', () async {
+      final response = await sut.request(url: url, method: 'get');
+
+      expect(response, {'any_key': 'any_value'});
+    });
+
+    test('Should return null if get returns 200 with no data', () async {
+      client.mockGet(200, body: '');
+
+      final response = await sut.request(url: url, method: 'get');
+
+      expect(response, null);
+    });
   });
 }
