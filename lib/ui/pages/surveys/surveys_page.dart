@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:survey_flutter/ui/helpers/i18n/i18n.dart';
+import 'package:survey_flutter/ui/pages/surveys/surveys.dart';
 
 import '../../components/components.dart';
 import 'components/components.dart';
@@ -24,17 +25,26 @@ class SurveysPage extends StatelessWidget {
             hideLoading(context);
           }
         });
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20),
-          child: CarouselSlider(
-            options: CarouselOptions(aspectRatio: 1, enlargeCenterPage: true),
-            items: [
-              SurveyItem(),
-              SurveyItem(),
-              SurveyItem(),
-            ],
-          ),
-        );
+        return StreamBuilder<List<SurveyViewModel>>(
+            stream: presenter.surveysStream,
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Column(
+                  children: [Text('${snapshot.error}'), ElevatedButton(onPressed: null, child: Text(R.string.reload))],
+                );
+              }
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: CarouselSlider(
+                  options: CarouselOptions(aspectRatio: 1, enlargeCenterPage: true),
+                  items: [
+                    SurveyItem(),
+                    SurveyItem(),
+                    SurveyItem(),
+                  ],
+                ),
+              );
+            });
       }),
     );
   }
