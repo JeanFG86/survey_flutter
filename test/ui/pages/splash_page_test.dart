@@ -8,8 +8,15 @@ import 'package:survey_flutter/ui/pages/splash/splash.dart';
 
 class SplashPresenterSpy extends Mock implements SplashPresenter {
   final navigateToController = StreamController<String?>();
+
   SplashPresenterSpy() {
+    when(() => checkAccount(durationInSeconds: any(named: 'durationInSeconds'))).thenAnswer((_) async => _);
     when(() => navigateToStream).thenAnswer((_) => navigateToController.stream);
+  }
+  void emitNavigateTo(String route) => navigateToController.add(route);
+
+  void dispose() {
+    navigateToController.close();
   }
 }
 
@@ -33,7 +40,7 @@ void main() {
   }
 
   tearDown(() {
-    navigateToController.close();
+    presenter.dispose();
   });
 
   testWidgets('Should present spinner on page load', (WidgetTester tester) async {

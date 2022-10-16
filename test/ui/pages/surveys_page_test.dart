@@ -34,7 +34,7 @@ void main() {
   }
 
   tearDown(() {
-    //presenter.dispose();
+    presenter.dispose();
   });
   testWidgets('Should call LoadSurveys on page load', (WidgetTester tester) async {
     await loadPage(tester);
