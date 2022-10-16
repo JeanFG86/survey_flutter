@@ -70,22 +70,6 @@ void main() {
     presenter.dispose();
   });
 
-  testWidgets('Should handle loading correctly', (WidgetTester tester) async {
-    await loadPage(tester);
-
-    presenter.emitLoading();
-    await tester.pump();
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
-
-    presenter.emitLoading(false);
-    await tester.pump();
-    expect(find.byType(CircularProgressIndicator), findsNothing);
-
-    presenter.emitLoading();
-    await tester.pump();
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
-  });
-
   testWidgets('Should call validate with correct values', (WidgetTester tester) async {
     await loadPage(tester);
 
@@ -104,7 +88,7 @@ void main() {
     presenter.emitEmailError(UIError.invalidField);
     await tester.pump();
 
-    expect(find.text('Campo inválido.'), findsOneWidget);
+    expect(find.text('Campo inválido'), findsOneWidget);
   });
 
   testWidgets('Should present no error if email is valid', (WidgetTester tester) async {
@@ -122,7 +106,7 @@ void main() {
     presenter.emitPasswordError(UIError.requiredField);
     await tester.pump();
 
-    expect(find.text('Campo obrigratório.'), findsOneWidget);
+    expect(find.text('Campo obrigatório'), findsOneWidget);
   });
 
   testWidgets('Should present no error if password is valid', (WidgetTester tester) async {
