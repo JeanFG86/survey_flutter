@@ -27,6 +27,11 @@ class SurveysPresenterSpy extends Mock implements SurveysPresenter {
   }
 }
 
+List<SurveyViewModel> makeSurveyList() => [
+      const SurveyViewModel(id: '1', question: 'Question 1', date: 'Date 1', didAnswer: true),
+      const SurveyViewModel(id: '2', question: 'Question 2', date: 'Date 2', didAnswer: false),
+    ];
+
 void main() {
   late SurveysPresenterSpy presenter;
 
@@ -73,5 +78,17 @@ void main() {
     expect(find.text('Algo errado aconteceu. Tente novamente em breve.'), findsOneWidget);
     expect(find.text('Recarregar'), findsOneWidget);
     expect(find.text('Question 1'), findsNothing);
+  });
+
+  testWidgets('Should present list if surveysStream succeeds', (WidgetTester tester) async {
+    await loadPage(tester);
+
+    presenter.emitSurveys(makeSurveyList());
+    await tester.pump();
+
+    expect(find.text('Algo errado aconteceu. Tente novamente em breve.'), findsNothing);
+    expect(find.text('Recarregar'), findsNothing);
+    expect(find.text('Question 1'), findsWidgets);
+    expect(find.text('Question 2'), findsWidgets);
   });
 }

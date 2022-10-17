@@ -33,19 +33,20 @@ class SurveysPage extends StatelessWidget {
                   children: [Text('${snapshot.error}'), ElevatedButton(onPressed: null, child: Text(R.string.reload))],
                 );
               }
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20),
-                child: CarouselSlider(
-                  options: CarouselOptions(aspectRatio: 1, enlargeCenterPage: true),
-                  items: [
-                    SurveyItem(),
-                    SurveyItem(),
-                    SurveyItem(),
-                  ],
-                ),
-              );
+              if (snapshot.hasData) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  child: CarouselSlider(
+                    options: CarouselOptions(aspectRatio: 1, enlargeCenterPage: true),
+                    items: snapshot.data?.map((viewModel) => SurveyItem(viewModel)).toList(),
+                  ),
+                );
+              }
+              return SizedBox(height: 0);
             });
       }),
     );
   }
 }
+
+//items: snapshot.data?.map((viewModel) => SurveyItem(viewModel)).toList(),

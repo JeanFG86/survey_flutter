@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:survey_flutter/ui/pages/pages.dart';
 
 // ignore: use_key_in_widget_constructors
 class SurveyItem extends StatelessWidget {
+  final SurveyViewModel viewModel;
+
+  const SurveyItem(this.viewModel);
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -16,14 +21,14 @@ class SurveyItem extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           // ignore: prefer_const_literals_to_create_immutables
           children: [
-            const Text(
-              "20 ago 2021",
+            Text(
+              viewModel.date,
               style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(
               height: 20,
             ),
-            const Text("Qual seu framework web favorito?", style: TextStyle(color: Colors.white, fontSize: 24))
+            Text(viewModel.question, style: TextStyle(color: Colors.white, fontSize: 24))
           ],
         ),
       ),
