@@ -5,6 +5,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:survey_flutter/domain/entities/entities.dart';
 import 'package:survey_flutter/domain/helpers/helpers.dart';
 import 'package:survey_flutter/domain/usecases/usecases.dart';
+import 'package:survey_flutter/ui/helpers/errors/errors.dart';
 import 'package:survey_flutter/ui/pages/surveys/surveys.dart';
 import 'package:test/test.dart';
 
@@ -31,6 +32,8 @@ class GetxSurveysPresenter extends GetxController {
               date: DateFormat('dd MMM yyyy').format(survey.dateTime),
               didAnswer: survey.didAnswer))
           .toList();
+    } on DomainError {
+      _surveys.subject.addError(UIError.unexpected.description);
     } finally {
       isLoading = false;
     }
@@ -82,6 +85,15 @@ void main() {
           SurveyViewModel(
               id: surveys[1].id, question: surveys[1].question, date: '20 Dec 2018', didAnswer: surveys[1].didAnswer),
         ])));
+
+    await sut.loadData();
+  });
+
+  test('Should emit correct events on failure', () async {
+    loadSurveys.mockLoadError(DomainError.unexpected);
+
+    expectLater(sut.isLoadingStream, emitsInOrder([true, false]));
+    sut.surveysStream.listen(null, onError: expectAsync1((error) => expect(error, UIError.unexpected.description)));
 
     await sut.loadData();
   });
