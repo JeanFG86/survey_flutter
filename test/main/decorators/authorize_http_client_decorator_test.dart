@@ -75,4 +75,10 @@ void main() {
     verify(() => httpClient.request(
         url: url, method: method, body: body, headers: {'x-access-token': token, 'any_header': 'any_value'})).called(1);
   });
+
+  test('Should return same result as decoratee', () async {
+    final response = await sut.request(url: url, method: method, body: body);
+
+    expect(response, httpResponse);
+  });
 }
