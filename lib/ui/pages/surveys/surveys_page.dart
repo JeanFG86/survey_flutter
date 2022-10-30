@@ -5,12 +5,11 @@ import 'package:survey_flutter/ui/pages/surveys/surveys.dart';
 
 import '../../components/components.dart';
 import 'components/components.dart';
-import 'surveys_presenter.dart';
 
 class SurveysPage extends StatelessWidget {
   final SurveysPresenter presenter;
 
-  const SurveysPage(this.presenter);
+  const SurveysPage(this.presenter, {super.key});
 
   @override
   Widget build(BuildContext context) {

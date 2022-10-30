@@ -1,6 +1,8 @@
+import 'package:flutter/material.dart';
+
 import 'survey_viewmodel.dart';
 
-abstract class SurveysPresenter {
+abstract class SurveysPresenter implements Listenable {
   Future<void> loadData();
 
   Stream<bool> get isLoadingStream;
