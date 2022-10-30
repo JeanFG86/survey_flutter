@@ -1,12 +1,13 @@
 import '../../data/cache/cache.dart';
 import '../../data/http/http.dart';
 
-class AuthorizeHttpClientDecorator {
+class AuthorizeHttpClientDecorator implements HttpClient {
   final FetchSecureCacheStorage fetchSecureCacheStorage;
   final HttpClient decoratee;
 
   AuthorizeHttpClientDecorator({required this.fetchSecureCacheStorage, required this.decoratee});
 
+  @override
   Future<dynamic> request({
     required String url,
     required String method,
@@ -18,10 +19,13 @@ class AuthorizeHttpClientDecorator {
       final authorizedHeaders = headers ?? {}
         ..addAll({'x-access-token': token});
       return await decoratee.request(url: url, method: method, body: body, headers: authorizedHeaders);
-    } on HttpError {
-      rethrow;
     } catch (error) {
-      throw HttpError.forbidden;
+      if (error is HttpError && error != HttpError.forbidden) {
+        rethrow;
+      } else {
+        //await deleteSecureCacheStorage.delete('token');
+        throw HttpError.forbidden;
+      }
     }
   }
 }
