@@ -16,10 +16,14 @@ class AuthorizeHttpClientDecorator {
     Map? body,
     Map? headers,
   }) async {
-    final token = await fetchSecureCacheStorage.fetchSecure('token');
-    final authorizedHeaders = headers ?? {}
-      ..addAll({'x-access-token': token});
-    return await decoratee.request(url: url, method: method, body: body, headers: authorizedHeaders);
+    try {
+      final token = await fetchSecureCacheStorage.fetchSecure('token');
+      final authorizedHeaders = headers ?? {}
+        ..addAll({'x-access-token': token});
+      return await decoratee.request(url: url, method: method, body: body, headers: authorizedHeaders);
+    } catch (error) {
+      throw HttpError.forbidden;
+    }
   }
 }
 
@@ -80,5 +84,13 @@ void main() {
     final response = await sut.request(url: url, method: method, body: body);
 
     expect(response, httpResponse);
+  });
+
+  test('Should throw ForbiddenError if FetchSecureCacheStorage throws', () async {
+    secureCacheStorage.mockFetchError();
+
+    final future = sut.request(url: url, method: method, body: body);
+
+    expect(future, throwsA(HttpError.forbidden));
   });
 }
