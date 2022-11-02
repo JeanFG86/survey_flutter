@@ -13,17 +13,6 @@ class CacheStorageSpy extends Mock implements CacheStorage {
   void mockFetchError() => mockFetchCall().thenThrow(Exception());
 }
 
-void main() {
-  test('Should call FetchCacheStorage with correct key', () async {
-    final fetchCacheStorage = CacheStorageSpy();
-    final sut = LocalLoadSurveys(cacheStorage: fetchCacheStorage);
-
-    await sut.load();
-
-    verify(() => fetchCacheStorage.fetch('surveys')).called(1);
-  });
-}
-
 class LocalLoadSurveys {
   final CacheStorage cacheStorage;
 
@@ -31,4 +20,19 @@ class LocalLoadSurveys {
   Future<void> load() async {
     await cacheStorage.fetch('surveys');
   }
+}
+
+void main() {
+  late CacheStorageSpy cacheStorage;
+  late LocalLoadSurveys sut;
+
+  setUp(() {
+    cacheStorage = CacheStorageSpy();
+    sut = LocalLoadSurveys(cacheStorage: cacheStorage);
+  });
+  test('Should call FetchCacheStorage with correct key', () async {
+    await sut.load();
+
+    verify(() => cacheStorage.fetch('surveys')).called(1);
+  });
 }
