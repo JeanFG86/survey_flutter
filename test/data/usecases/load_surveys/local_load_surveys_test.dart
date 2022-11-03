@@ -23,9 +23,8 @@ class LocalLoadSurveys {
   LocalLoadSurveys({required this.cacheStorage});
 
   Future<List<SurveyEntity>> load() async {
-    final data = await cacheStorage.fetch('surveys');
-
     try {
+      final data = await cacheStorage.fetch('surveys');
       if (data?.isEmpty != false) {
         throw Exception;
       }
@@ -120,6 +119,14 @@ void main() {
 
   test('Should throw UnexpectedError if cache is incomplete', () async {
     cacheStorage.mockFetch(CacheFactory.makeIncompleteSurveyList());
+
+    final future = sut.load();
+
+    expect(future, throwsA(DomainError.unexpected));
+  });
+
+  test('Should throw UnexpectedError if cache throws', () async {
+    cacheStorage.mockFetchError();
 
     final future = sut.load();
 
