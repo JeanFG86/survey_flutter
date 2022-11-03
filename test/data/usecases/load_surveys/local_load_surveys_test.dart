@@ -2,6 +2,7 @@ import 'package:faker/faker.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:survey_flutter/data/models/models.dart';
 import 'package:survey_flutter/domain/entities/entities.dart';
+import 'package:survey_flutter/domain/helpers/helpers.dart';
 import 'package:test/test.dart';
 
 abstract class CacheStorage {
@@ -23,6 +24,10 @@ class LocalLoadSurveys {
 
   Future<List<SurveyEntity>> load() async {
     final data = await cacheStorage.fetch('surveys');
+
+    if (data.isEmpty) {
+      throw DomainError.unexpected;
+    }
 
     return _mapToEntity(data);
   }
@@ -75,5 +80,13 @@ void main() {
       SurveyEntity(
           id: data[1]['id'], question: data[1]['question'], dateTime: DateTime.utc(2019, 2, 2), didAnswer: true),
     ]);
+  });
+
+  test('Should throw UnexpectedError if cache is empty', () async {
+    cacheStorage.mockFetch([]);
+
+    final future = sut.load();
+
+    expect(future, throwsA(DomainError.unexpected));
   });
 }
