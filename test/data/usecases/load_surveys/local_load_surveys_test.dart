@@ -1,7 +1,7 @@
 import 'package:faker/faker.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:survey_flutter/data/cache/cache.dart';
-import 'package:survey_flutter/data/models/models.dart';
+import 'package:survey_flutter/data/usecases/usecases.dart';
 import 'package:survey_flutter/domain/entities/entities.dart';
 import 'package:survey_flutter/domain/helpers/helpers.dart';
 import 'package:test/test.dart';
@@ -12,28 +12,6 @@ class CacheStorageSpy extends Mock implements CacheStorage {
   When mockFetchCall() => when(() => fetch(any()));
   void mockFetch(dynamic json) => mockFetchCall().thenAnswer((_) async => json);
   void mockFetchError() => mockFetchCall().thenThrow(Exception());
-}
-
-class LocalLoadSurveys {
-  final CacheStorage cacheStorage;
-
-  LocalLoadSurveys({required this.cacheStorage});
-
-  Future<List<SurveyEntity>> load() async {
-    try {
-      final data = await cacheStorage.fetch('surveys');
-      if (data?.isEmpty != false) {
-        throw Exception;
-      }
-
-      return _mapToEntity(data);
-    } catch (error) {
-      throw DomainError.unexpected;
-    }
-  }
-
-  List<SurveyEntity> _mapToEntity(dynamic list) =>
-      list.map<SurveyEntity>((json) => LocalSurveyModel.fromJson(json).toEntity()).toList();
 }
 
 class CacheFactory {
