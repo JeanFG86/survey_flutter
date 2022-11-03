@@ -64,6 +64,13 @@ class CacheFactory {
           'didAnswer': 'false',
         }
       ];
+
+  static List<Map> makeIncompleteSurveyList() => [
+        {
+          'date': '2019-02-02T00:00:00Z',
+          'didAnswer': 'false',
+        }
+      ];
 }
 
 void main() {
@@ -105,6 +112,14 @@ void main() {
 
   test('Should throw UnexpectedError if cache is isvalid', () async {
     cacheStorage.mockFetch(CacheFactory.makeInvalidSurveyList());
+
+    final future = sut.load();
+
+    expect(future, throwsA(DomainError.unexpected));
+  });
+
+  test('Should throw UnexpectedError if cache is incomplete', () async {
+    cacheStorage.mockFetch(CacheFactory.makeIncompleteSurveyList());
 
     final future = sut.load();
 
