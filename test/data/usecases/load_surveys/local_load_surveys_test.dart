@@ -1,13 +1,10 @@
 import 'package:faker/faker.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:survey_flutter/data/cache/cache.dart';
 import 'package:survey_flutter/data/models/models.dart';
 import 'package:survey_flutter/domain/entities/entities.dart';
 import 'package:survey_flutter/domain/helpers/helpers.dart';
 import 'package:test/test.dart';
-
-abstract class CacheStorage {
-  Future<dynamic> fetch(String key);
-}
 
 class CacheStorageSpy extends Mock implements CacheStorage {
   CacheStorageSpy();
