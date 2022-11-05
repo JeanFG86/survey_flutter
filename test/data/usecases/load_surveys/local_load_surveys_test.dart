@@ -127,5 +127,13 @@ void main() {
 
       verify(() => cacheStorage.fetch('surveys')).called(1);
     });
+
+    test('Should delete cache if it is invalid', () async {
+      cacheStorage.mockFetch(CacheFactory.makeInvalidSurveyList());
+
+      await sut.validate();
+
+      verify(() => cacheStorage.delete('surveys')).called(1);
+    });
   });
 }
