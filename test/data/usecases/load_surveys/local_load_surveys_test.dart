@@ -109,4 +109,23 @@ void main() {
       expect(future, throwsA(DomainError.unexpected));
     });
   });
+
+  group('validate', () {
+    late CacheStorageSpy cacheStorage;
+    late LocalLoadSurveys sut;
+    late List<Map> data;
+
+    setUp(() {
+      data = CacheFactory.makeSurveyList();
+      cacheStorage = CacheStorageSpy();
+      cacheStorage.mockFetch(data);
+      sut = LocalLoadSurveys(cacheStorage: cacheStorage);
+    });
+
+    test('Should call CacheStorage on validate', () async {
+      await sut.validate();
+
+      verify(() => cacheStorage.fetch('surveys')).called(1);
+    });
+  });
 }
