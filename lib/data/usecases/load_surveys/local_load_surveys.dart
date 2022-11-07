@@ -24,7 +24,7 @@ class LocalLoadSurveys implements LoadSurveys {
     }
   }
 
-  Future<void>? validate() async {
+  Future<void> validate() async {
     try {
       final data = await cacheStorage.fetch('surveys');
       _mapToEntity(data);
@@ -33,9 +33,13 @@ class LocalLoadSurveys implements LoadSurveys {
     }
   }
 
-  Future<void>? save(List<SurveyEntity> surveys) async {
-    final json = _mapToJson(surveys);
-    await cacheStorage.save(key: 'surveys', value: json);
+  Future<void> save(List<SurveyEntity> surveys) async {
+    try {
+      final json = _mapToJson(surveys);
+      await cacheStorage.save(key: 'surveys', value: json);
+    } catch (error) {
+      throw DomainError.unexpected;
+    }
   }
 
   List<SurveyEntity> _mapToEntity(dynamic list) =>

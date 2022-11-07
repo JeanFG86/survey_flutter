@@ -7,11 +7,22 @@ import 'package:survey_flutter/domain/helpers/helpers.dart';
 import 'package:test/test.dart';
 
 class CacheStorageSpy extends Mock implements CacheStorage {
-  CacheStorageSpy();
+  CacheStorageSpy() {
+    mockDelete();
+    mockSave();
+  }
 
   When mockFetchCall() => when(() => fetch(any()));
   void mockFetch(dynamic json) => mockFetchCall().thenAnswer((_) async => json);
   void mockFetchError() => mockFetchCall().thenThrow(Exception());
+
+  When mockDeleteCall() => when(() => delete(any()));
+  void mockDelete() => mockDeleteCall().thenAnswer((_) async => _);
+  void mockDeleteError() => mockDeleteCall().thenThrow(Exception());
+
+  When mockSaveCall() => when(() => save(key: any(named: 'key'), value: any(named: 'value')));
+  void mockSave() => mockSaveCall().thenAnswer((_) async => _);
+  void mockSaveError() => mockSaveCall().thenThrow(Exception());
 }
 
 class CacheFactory {
@@ -169,5 +180,13 @@ void main() {
 
       verify(() => cacheStorage.save(key: 'surveys', value: list)).called(1);
     });
+  });
+
+  test('Should throw UnexpectedError if save throws', () async {
+    cacheStorage.mockSaveError();
+
+    final future = sut.save(surveys);
+
+    expect(future, throwsA(DomainError.unexpected));
   });
 }
