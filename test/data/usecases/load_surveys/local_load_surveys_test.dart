@@ -45,21 +45,35 @@ class CacheFactory {
           'didAnswer': 'false',
         }
       ];
+
+  static List<SurveyEntity> makeSurveyList2() => [
+        SurveyEntity(
+            id: faker.guid.guid(),
+            question: faker.randomGenerator.string(10),
+            dateTime: DateTime.utc(2020, 2, 2),
+            didAnswer: true),
+        SurveyEntity(
+            id: faker.guid.guid(),
+            question: faker.randomGenerator.string(10),
+            dateTime: DateTime.utc(2018, 12, 20),
+            didAnswer: false)
+      ];
 }
 
 void main() {
+  late CacheStorageSpy cacheStorage;
+  late LocalLoadSurveys sut;
+  late List<Map> data;
+  late List<SurveyEntity> surveys;
+
+  setUp(() {
+    surveys = CacheFactory.makeSurveyList2();
+    data = CacheFactory.makeSurveyList();
+    cacheStorage = CacheStorageSpy();
+    cacheStorage.mockFetch(data);
+    sut = LocalLoadSurveys(cacheStorage: cacheStorage);
+  });
   group('load', () {
-    late CacheStorageSpy cacheStorage;
-    late LocalLoadSurveys sut;
-    late List<Map> data;
-
-    setUp(() {
-      data = CacheFactory.makeSurveyList();
-      cacheStorage = CacheStorageSpy();
-      cacheStorage.mockFetch(data);
-      sut = LocalLoadSurveys(cacheStorage: cacheStorage);
-    });
-
     test('Should call FetchCacheStorage with correct key', () async {
       await sut.load();
 
@@ -111,17 +125,6 @@ void main() {
   });
 
   group('validate', () {
-    late CacheStorageSpy cacheStorage;
-    late LocalLoadSurveys sut;
-    late List<Map> data;
-
-    setUp(() {
-      data = CacheFactory.makeSurveyList();
-      cacheStorage = CacheStorageSpy();
-      cacheStorage.mockFetch(data);
-      sut = LocalLoadSurveys(cacheStorage: cacheStorage);
-    });
-
     test('Should call CacheStorage on validate', () async {
       await sut.validate();
 
@@ -142,6 +145,29 @@ void main() {
       await sut.validate();
 
       verify(() => cacheStorage.delete('surveys')).called(1);
+    });
+  });
+
+  group('save', () {
+    test('Should call cacheStorage save with correct values', () async {
+      final list = [
+        {
+          'id': surveys[0].id,
+          'question': surveys[0].question,
+          'date': '2020-02-02T00:00:00.000Z',
+          'didAnswer': 'true',
+        },
+        {
+          'id': surveys[1].id,
+          'question': surveys[1].question,
+          'date': '2018-12-20T00:00:00.000Z',
+          'didAnswer': 'false',
+        }
+      ];
+
+      await sut.save(surveys);
+
+      verify(() => cacheStorage.save(key: 'surveys', value: list)).called(1);
     });
   });
 }
