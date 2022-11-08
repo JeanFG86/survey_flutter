@@ -19,7 +19,7 @@ class FlutterSecurityStorageSpy extends Mock implements FlutterSecureStorage {
 }
 
 void main() {
-  late LocalStorageAdapter sut;
+  late SecureStorageAdapter sut;
   late FlutterSecurityStorageSpy localStorage;
   late String key;
   late dynamic value;
@@ -31,7 +31,7 @@ void main() {
     result = faker.randomGenerator.string(50);
     localStorage = FlutterSecurityStorageSpy();
     localStorage.mockFetch(result);
-    sut = LocalStorageAdapter(secureStorage: localStorage);
+    sut = SecureStorageAdapter(secureStorage: localStorage);
   });
 
   group('saveSecure', () {
