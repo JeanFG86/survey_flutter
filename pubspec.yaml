@@ -15,6 +15,7 @@ dependencies:
   equatable:
   get: 4.3.8
   flutter_secure_storage:
+  localstorage:
   carousel_slider:
   intl:
 
