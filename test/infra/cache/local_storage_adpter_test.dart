@@ -63,4 +63,12 @@ void main() {
 
     expect(future, throwsA(const TypeMatcher<Exception>()));
   });
+
+  test('Should throw if deleteItem throws on save', () async {
+    localStorage.mockSaveError();
+
+    final future = sut.save(key: key, value: value);
+
+    expect(future, throwsA(const TypeMatcher<Exception>()));
+  });
 }
