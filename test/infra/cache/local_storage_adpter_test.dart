@@ -55,4 +55,12 @@ void main() {
     verify(() => localStorage.deleteItem(key)).called(1);
     verify(() => localStorage.setItem(key, value)).called(1);
   });
+
+  test('Should throw if deleteItem throws', () async {
+    localStorage.mockDeleteError();
+
+    final future = sut.save(key: key, value: value);
+
+    expect(future, throwsA(const TypeMatcher<Exception>()));
+  });
 }
