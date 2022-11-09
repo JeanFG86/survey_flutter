@@ -39,26 +39,36 @@ void main() {
     sut = LocalStorageAdapter(localStorage: localStorage);
   });
 
-  test('Should call localStorage with correct values', () async {
-    await sut.save(key: key, value: value);
+  group('save', () {
+    test('Should call localStorage with correct values', () async {
+      await sut.save(key: key, value: value);
 
-    verify(() => localStorage.deleteItem(key)).called(1);
-    verify(() => localStorage.setItem(key, value)).called(1);
+      verify(() => localStorage.deleteItem(key)).called(1);
+      verify(() => localStorage.setItem(key, value)).called(1);
+    });
+
+    test('Should throw if deleteItem throws', () async {
+      localStorage.mockDeleteError();
+
+      final future = sut.save(key: key, value: value);
+
+      expect(future, throwsA(const TypeMatcher<Exception>()));
+    });
+
+    test('Should throw if deleteItem throws', () async {
+      localStorage.mockSaveError();
+
+      final future = sut.save(key: key, value: value);
+
+      expect(future, throwsA(const TypeMatcher<Exception>()));
+    });
   });
 
-  test('Should throw if deleteItem throws', () async {
-    localStorage.mockDeleteError();
+  group('delete', () {
+    test('Should call localStorage with correct values', () async {
+      await sut.delete(key);
 
-    final future = sut.save(key: key, value: value);
-
-    expect(future, throwsA(const TypeMatcher<Exception>()));
-  });
-
-  test('Should throw if deleteItem throws on save', () async {
-    localStorage.mockSaveError();
-
-    final future = sut.save(key: key, value: value);
-
-    expect(future, throwsA(const TypeMatcher<Exception>()));
+      verify(() => localStorage.deleteItem(key)).called(1);
+    });
   });
 }
