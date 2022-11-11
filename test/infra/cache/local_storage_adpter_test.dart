@@ -92,5 +92,13 @@ void main() {
 
       expect(data, result);
     });
+
+    test('Should throw if getItem throws', () async {
+      localStorage.mockFetchError();
+
+      final future = sut.fetch(key);
+
+      expect(future, throwsA(const TypeMatcher<Exception>()));
+    });
   });
 }
