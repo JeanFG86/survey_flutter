@@ -86,5 +86,11 @@ void main() {
 
       verify(() => localStorage.getItem(key)).called(1);
     });
+
+    test('Should return same value as localStorage', () async {
+      final data = await sut.fetch(key);
+
+      expect(data, result);
+    });
   });
 }
