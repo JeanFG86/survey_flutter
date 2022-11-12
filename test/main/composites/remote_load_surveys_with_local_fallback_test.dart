@@ -3,17 +3,20 @@ import 'package:mocktail/mocktail.dart';
 import 'package:survey_flutter/data/usecases/usecases.dart';
 import 'package:survey_flutter/domain/entities/entities.dart';
 import 'package:survey_flutter/domain/helpers/helpers.dart';
+import 'package:survey_flutter/domain/usecases/usecases.dart';
 import 'package:test/test.dart';
 
-class RemoteLoadSurveysWithLocalFallback {
+class RemoteLoadSurveysWithLocalFallback implements LoadSurveys {
   final RemoteLoadSurveys remote;
   final LocalLoadSurveys local;
 
   RemoteLoadSurveysWithLocalFallback({required this.remote, required this.local});
 
-  Future<void> load() async {
+  @override
+  Future<List<SurveyEntity>> load() async {
     final surveys = await remote.load();
     await local.save(surveys);
+    return surveys;
   }
 }
 
@@ -83,5 +86,11 @@ void main() {
     await sut.load();
 
     verify(() => local.save(remoteSurveys)).called(1);
+  });
+
+  test('Should return remote surveys', () async {
+    final surveys = await sut.load();
+
+    expect(surveys, remoteSurveys);
   });
 }
