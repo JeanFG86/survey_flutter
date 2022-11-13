@@ -126,4 +126,13 @@ void main() {
 
     expect(surveys, localSurveys);
   });
+
+  test('Should throw UnexpectedError if remote and local throws', () async {
+    remote.mockLoadError(DomainError.unexpected);
+    local.mockLoadError();
+
+    final future = sut.load();
+
+    expect(future, throwsA(DomainError.unexpected));
+  });
 }
