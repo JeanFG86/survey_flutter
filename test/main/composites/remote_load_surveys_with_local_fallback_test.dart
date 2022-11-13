@@ -93,4 +93,12 @@ void main() {
 
     expect(surveys, remoteSurveys);
   });
+
+  test('Should rethrow if remote load throws AccessDeniedError', () async {
+    remote.mockLoadError(DomainError.accessDenied);
+
+    final future = sut.load();
+
+    expect(future, throwsA(DomainError.accessDenied));
+  });
 }
