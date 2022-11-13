@@ -3,30 +3,8 @@ import 'package:mocktail/mocktail.dart';
 import 'package:survey_flutter/data/usecases/usecases.dart';
 import 'package:survey_flutter/domain/entities/entities.dart';
 import 'package:survey_flutter/domain/helpers/helpers.dart';
-import 'package:survey_flutter/domain/usecases/usecases.dart';
+import 'package:survey_flutter/main/composites/composites.dart';
 import 'package:test/test.dart';
-
-class RemoteLoadSurveysWithLocalFallback implements LoadSurveys {
-  final RemoteLoadSurveys remote;
-  final LocalLoadSurveys local;
-
-  RemoteLoadSurveysWithLocalFallback({required this.remote, required this.local});
-
-  @override
-  Future<List<SurveyEntity>> load() async {
-    try {
-      final surveys = await remote.load();
-      await local.save(surveys);
-      return surveys;
-    } catch (error) {
-      if (error == DomainError.accessDenied) {
-        rethrow;
-      }
-      await local.validate();
-      return await local.load();
-    }
-  }
-}
 
 class RemoteLoadSurveysSpy extends Mock implements RemoteLoadSurveys {
   When mockLoadCall() => when(() => load());
