@@ -118,4 +118,12 @@ void main() {
     verify(() => local.validate()).called(1);
     verify(() => local.load()).called(1);
   });
+
+  test('Should return local surveys', () async {
+    remote.mockLoadError(DomainError.unexpected);
+
+    final surveys = await sut.load();
+
+    expect(surveys, localSurveys);
+  });
 }
