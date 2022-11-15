@@ -1,4 +1,3 @@
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:survey_flutter/ui/helpers/i18n/i18n.dart';
 import 'package:survey_flutter/ui/pages/surveys/surveys.dart';
@@ -34,13 +33,7 @@ class SurveysPage extends StatelessWidget {
                 );
               }
               if (snapshot.hasData) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  child: CarouselSlider(
-                    options: CarouselOptions(aspectRatio: 1, enlargeCenterPage: true),
-                    items: snapshot.data?.map((viewModel) => SurveyItem(viewModel)).toList(),
-                  ),
-                );
+                return SurveyItens(snapshot.data);
               }
               return const SizedBox(height: 0);
             });
