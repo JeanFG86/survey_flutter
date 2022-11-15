@@ -7,9 +7,10 @@ import 'package:mocktail/mocktail.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 import 'package:survey_flutter/ui/helpers/errors/errors.dart';
 import 'package:survey_flutter/ui/pages/pages.dart';
+import 'package:survey_flutter/ui/pages/survey_result/components/components.dart';
 
 class SurveyResultPresenterSpy extends Mock implements SurveyResultPresenter {
-  final surveyResultController = StreamController<dynamic>();
+  final surveyResultController = StreamController<SurveyResultViewModel>();
   final isLoadingController = StreamController<bool>();
 
   SurveyResultPresenterSpy() {
@@ -18,7 +19,7 @@ class SurveyResultPresenterSpy extends Mock implements SurveyResultPresenter {
     when(() => isLoadingStream).thenAnswer((_) => isLoadingController.stream);
   }
 
-  void emitSurveys(List<SurveyViewModel> data) => surveyResultController.add(data);
+  void emitSurveyResult(SurveyResultViewModel data) => surveyResultController.add(data);
   void emitLoading([bool show = true]) => isLoadingController.add(show);
   void emitSurveysError(String error) => surveyResultController.addError(error);
 
@@ -28,10 +29,11 @@ class SurveyResultPresenterSpy extends Mock implements SurveyResultPresenter {
   }
 }
 
-List<SurveyViewModel> makeSurveyList() => [
-      const SurveyViewModel(id: '1', question: 'Question 1', date: 'Date 1', didAnswer: true),
-      const SurveyViewModel(id: '2', question: 'Question 2', date: 'Date 2', didAnswer: false),
-    ];
+SurveyResultViewModel makeSurveyResult() =>
+    const SurveyResultViewModel(surveyId: 'Any id', question: 'Question', answers: [
+      SurveyAnswerViewModel(image: 'Image 0', answer: 'Answer 0', isCurrentAnswer: true, percent: '60%'),
+      SurveyAnswerViewModel(answer: 'Answer 1', isCurrentAnswer: false, percent: '40%')
+    ]);
 
 void main() {
   late SurveyResultPresenterSpy presenter;
@@ -81,6 +83,7 @@ void main() {
 
     expect(find.text('Algo errado aconteceu. Tente novamente em breve.'), findsOneWidget);
     expect(find.text('Recarregar'), findsOneWidget);
+    expect(find.text('Question'), findsNothing);
   });
 
   testWidgets('Should call LoadSurveys on reload button click', (WidgetTester tester) async {
@@ -91,5 +94,26 @@ void main() {
     await tester.tap(find.text('Recarregar'));
 
     verify(() => presenter.loadData()).called(2);
+  });
+
+  testWidgets('Should present valid data if surveyResultStream succeeds', (WidgetTester tester) async {
+    await loadPage(tester);
+
+    presenter.emitSurveyResult(makeSurveyResult());
+    await mockNetworkImagesFor(() async {
+      await tester.pump();
+    });
+
+    expect(find.text('Algo errado aconteceu. Tente novamente em breve.'), findsNothing);
+    expect(find.text('Recarregar'), findsNothing);
+    expect(find.text('Question'), findsOneWidget);
+    expect(find.text('Answer 0'), findsOneWidget);
+    expect(find.text('Answer 1'), findsOneWidget);
+    expect(find.text('60%'), findsOneWidget);
+    expect(find.text('40%'), findsOneWidget);
+    expect(find.byType(ActiveIcon), findsOneWidget);
+    expect(find.byType(DisabledIcon), findsOneWidget);
+    final image = tester.widget<Image>(find.byType(Image)).image as NetworkImage;
+    expect(image.url, 'Image 0');
   });
 }
