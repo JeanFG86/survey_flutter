@@ -5,25 +5,26 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:network_image_mock/network_image_mock.dart';
+import 'package:survey_flutter/ui/helpers/errors/errors.dart';
 import 'package:survey_flutter/ui/pages/pages.dart';
 
 class SurveyResultPresenterSpy extends Mock implements SurveyResultPresenter {
-  final surveysController = StreamController<List<SurveyViewModel>>();
+  final surveyResultController = StreamController<dynamic>();
   final isLoadingController = StreamController<bool>();
 
   SurveyResultPresenterSpy() {
     when(() => loadData()).thenAnswer((_) async => _);
-    //when(() => surveysStream).thenAnswer((_) => surveysController.stream);
+    when(() => surveyResultStream).thenAnswer((_) => surveyResultController.stream);
     when(() => isLoadingStream).thenAnswer((_) => isLoadingController.stream);
   }
 
-  void emitSurveys(List<SurveyViewModel> data) => surveysController.add(data);
+  void emitSurveys(List<SurveyViewModel> data) => surveyResultController.add(data);
   void emitLoading([bool show = true]) => isLoadingController.add(show);
-  void emitSurveysError(String error) => surveysController.addError(error);
+  void emitSurveysError(String error) => surveyResultController.addError(error);
 
   void dispose() {
     isLoadingController.close();
-    surveysController.close();
+    surveyResultController.close();
   }
 }
 
@@ -70,5 +71,15 @@ void main() {
     presenter.emitLoading();
     await tester.pump();
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
+  });
+
+  testWidgets('Should present error if surveysStream fails', (WidgetTester tester) async {
+    await loadPage(tester);
+
+    presenter.emitSurveysError(UIError.unexpected.description);
+    await tester.pump();
+
+    expect(find.text('Algo errado aconteceu. Tente novamente em breve.'), findsOneWidget);
+    expect(find.text('Recarregar'), findsOneWidget);
   });
 }

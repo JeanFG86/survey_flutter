@@ -41,7 +41,3 @@ class SurveysPage extends StatelessWidget {
     );
   }
 }
-
-
-
-//items: snapshot.data?.map((viewModel) => SurveyItem(viewModel)).toList(),
