@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:mocktail/mocktail.dart';
@@ -13,7 +14,7 @@ class SurveyResultPresenterSpy extends Mock implements SurveyResultPresenter {
   SurveyResultPresenterSpy() {
     when(() => loadData()).thenAnswer((_) async => _);
     //when(() => surveysStream).thenAnswer((_) => surveysController.stream);
-    //when(() => isLoadingStream).thenAnswer((_) => isLoadingController.stream);
+    when(() => isLoadingStream).thenAnswer((_) => isLoadingController.stream);
   }
 
   void emitSurveys(List<SurveyViewModel> data) => surveysController.add(data);
@@ -40,7 +41,7 @@ void main() {
       initialRoute: '/survey_result/any_survey_id',
       getPages: [GetPage(name: '/survey_result/:survey_id', page: () => SurveyResultPage(presenter))],
     );
-    mockNetworkImagesFor(() async {
+    await mockNetworkImagesFor(() async {
       await tester.pumpWidget(surveysPage);
     });
   }
@@ -48,9 +49,26 @@ void main() {
   tearDown(() {
     presenter.dispose();
   });
+
   testWidgets('Should call LoadSurveyResult on page load', (WidgetTester tester) async {
     await loadPage(tester);
 
     verify(() => presenter.loadData()).called(1);
+  });
+
+  testWidgets('Should handle loading correctly', (WidgetTester tester) async {
+    await loadPage(tester);
+
+    presenter.emitLoading();
+    await tester.pump();
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+    presenter.emitLoading(false);
+    await tester.pump();
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+
+    presenter.emitLoading();
+    await tester.pump();
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
 }
