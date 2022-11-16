@@ -75,4 +75,7 @@ class GetxSurveysPresenter extends GetxController implements SurveysPresenter {
       isLoading = false;
     }
   }
+
+  @override
+  void goToSurveyResult(String surveyId) {}
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:survey_flutter/ui/helpers/i18n/i18n.dart';
 import 'package:survey_flutter/ui/pages/surveys/surveys.dart';
 
@@ -33,7 +34,7 @@ class SurveysPage extends StatelessWidget {
                 );
               }
               if (snapshot.hasData) {
-                return SurveyItens(snapshot.data);
+                return ListenableProvider(create: (_) => presenter, child: SurveyItens(snapshot.data));
               }
               return const SizedBox(height: 0);
             });

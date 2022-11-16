@@ -6,7 +6,6 @@ import 'package:survey_flutter/domain/usecases/usecases.dart';
 import 'package:survey_flutter/presentation/presenter/presenter.dart';
 import 'package:survey_flutter/ui/helpers/errors/errors.dart';
 import 'package:survey_flutter/ui/pages/pages.dart';
-import 'package:survey_flutter/ui/pages/surveys/surveys.dart';
 import 'package:test/test.dart';
 
 class LoadSurveyResultSpy extends Mock implements LoadSurveyResult {
