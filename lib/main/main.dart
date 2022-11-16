@@ -17,7 +17,7 @@ class App extends StatelessWidget {
       title: 'Survey',
       debugShowCheckedModeBanner: false,
       theme: makeAppTheme(),
-      initialRoute: '/surveys_result/1',
+      initialRoute: '/',
       getPages: [
         GetPage(name: '/', page: makeSplashPage, transition: Transition.fade),
         GetPage(name: '/login', page: makeLoginPage, transition: Transition.fadeIn),
