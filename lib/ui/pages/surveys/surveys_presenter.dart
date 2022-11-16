@@ -6,6 +6,7 @@ abstract class SurveysPresenter implements Listenable {
   Future<void> loadData();
   void goToSurveyResult(String surveyId);
 
+  Stream<String?> get navigateToStream;
   Stream<bool> get isLoadingStream;
   Stream<List<SurveyViewModel>> get surveysStream;
 }

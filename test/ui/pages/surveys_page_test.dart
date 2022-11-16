@@ -10,20 +10,24 @@ import 'package:survey_flutter/ui/pages/pages.dart';
 class SurveysPresenterSpy extends Mock implements SurveysPresenter {
   final surveysController = StreamController<List<SurveyViewModel>>();
   final isLoadingController = StreamController<bool>();
+  final navigateToController = StreamController<String?>();
 
   SurveysPresenterSpy() {
     when(() => loadData()).thenAnswer((_) async => _);
     when(() => surveysStream).thenAnswer((_) => surveysController.stream);
     when(() => isLoadingStream).thenAnswer((_) => isLoadingController.stream);
+    when(() => navigateToStream).thenAnswer((_) => navigateToController.stream);
   }
 
   void emitSurveys(List<SurveyViewModel> data) => surveysController.add(data);
   void emitLoading([bool show = true]) => isLoadingController.add(show);
   void emitSurveysError(String error) => surveysController.addError(error);
+  void emitNavigateTo(String route) => navigateToController.add(route);
 
   void dispose() {
     isLoadingController.close();
     surveysController.close();
+    navigateToController.close();
   }
 }
 
@@ -39,7 +43,14 @@ void main() {
     presenter = SurveysPresenterSpy();
     final surveysPage = GetMaterialApp(
       initialRoute: '/surveys',
-      getPages: [GetPage(name: '/surveys', page: () => SurveysPage(presenter))],
+      getPages: [
+        GetPage(name: '/surveys', page: () => SurveysPage(presenter)),
+        GetPage(
+            name: '/any_route',
+            page: () => const Scaffold(
+                  body: Text('fake page'),
+                ))
+      ],
     );
     await tester.pumpWidget(surveysPage);
   }
@@ -114,5 +125,15 @@ void main() {
     await tester.pump();
 
     verify(() => presenter.goToSurveyResult('1')).called(1);
+  });
+
+  testWidgets('Should change page', (WidgetTester tester) async {
+    await loadPage(tester);
+
+    presenter.emitNavigateTo('/any_route');
+    await tester.pumpAndSettle();
+
+    expect(Get.currentRoute, '/any_route');
+    expect(find.text('fake page'), findsOneWidget);
   });
 }

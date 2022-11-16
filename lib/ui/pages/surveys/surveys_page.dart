@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:survey_flutter/ui/helpers/i18n/i18n.dart';
 import 'package:survey_flutter/ui/pages/surveys/surveys.dart';
@@ -24,6 +25,13 @@ class SurveysPage extends StatelessWidget {
             hideLoading(context);
           }
         });
+
+        presenter.navigateToStream.listen((page) {
+          if (page != null && page.isNotEmpty) {
+            Get.toNamed(page);
+          }
+        });
+
         return StreamBuilder<List<SurveyViewModel>>(
             stream: presenter.surveysStream,
             builder: (context, snapshot) {
