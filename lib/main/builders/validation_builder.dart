@@ -1,4 +1,4 @@
-import 'package:survey_flutter/validation/protocols/field_validation.dart';
+import '../../validation/protocols/protocols.dart';
 import '../../validation/validators/validators.dart';
 
 class ValidationBuilder {

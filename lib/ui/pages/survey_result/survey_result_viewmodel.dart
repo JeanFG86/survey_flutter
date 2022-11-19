@@ -1,6 +1,6 @@
-import 'package:equatable/equatable.dart';
+import './survey_result.dart';
 
-import 'survey_answer_viewmodel.dart';
+import 'package:equatable/equatable.dart';
 
 class SurveyResultViewModel extends Equatable {
   final String surveyId;

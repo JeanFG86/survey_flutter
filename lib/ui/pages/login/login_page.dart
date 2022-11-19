@@ -1,83 +1,58 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:provider/provider.dart';
-import '../../helpers/errors/errors.dart';
-import '../../helpers/i18n/i18n.dart';
-import 'components/components.dart';
-import 'login_presenter.dart';
 import '../../components/components.dart';
+import '../../helpers/helpers.dart';
+import '../../mixins/mixins.dart';
+import './components/components.dart';
+import './login.dart';
 
-class LoginPage extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+class LoginPage extends StatelessWidget with KeyboardManager, LoadingManager, UIErrorManager, NavigationManager {
   final LoginPresenter presenter;
 
-  // ignore: use_key_in_widget_constructors
-  const LoginPage(this.presenter);
+  LoginPage(this.presenter, {super.key});
 
   @override
   Widget build(BuildContext context) {
-    // ignore: no_leading_underscores_for_local_identifiers
-    void _hideKeyboard() {
-      final currentFocus = FocusScope.of(context);
-      if (!currentFocus.hasPrimaryFocus) {
-        currentFocus.unfocus();
-      }
-    }
-
     return Scaffold(
       body: Builder(
         builder: (context) {
-          presenter.isLoadingStream.listen((isLoading) {
-            if (isLoading) {
-              showLoading(context);
-            } else {
-              hideLoading(context);
-            }
-          });
-
-          presenter.mainErrorStream.listen((error) {
-            if (error != null) {
-              showErrorMessage(context, error.description);
-            }
-          });
-
-          presenter.navigateToStream.listen((page) {
-            if (page != null && page.isNotEmpty) {
-              //if (clear == true) {
-              //  Get.offAllNamed(page);
-              /// } else {
-              Get.offAllNamed(page);
-              // }
-            }
-          });
+          handleLoading(context, presenter.isLoadingStream);
+          handleMainError(context, presenter.mainErrorStream);
+          handleNavigation(presenter.navigateToStream, clear: true);
 
           return GestureDetector(
-            onTap: _hideKeyboard,
+            onTap: () => hideKeyboard(context),
             child: SingleChildScrollView(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                const LoginHeader(),
-                HeadLine1(text: R.string.login),
-                Padding(
-                  padding: const EdgeInsets.all(32),
-                  child: ListenableProvider(
-                    create: (_) => presenter,
-                    child: Form(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  const LoginHeader(),
+                  Headline1(text: R.string.login),
+                  Padding(
+                    padding: const EdgeInsets.all(32),
+                    child: ListenableProvider(
+                      create: (_) => presenter,
+                      child: Form(
                         child: Column(
-                      children: [
-                        EmailInput(),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8, bottom: 32),
-                          child: PasswordInput(),
+                          children: <Widget>[
+                            const EmailInput(),
+                            const Padding(
+                              padding: EdgeInsets.only(top: 8, bottom: 32),
+                              child: PasswordInput(),
+                            ),
+                            const LoginButton(),
+                            TextButton.icon(
+                                onPressed: presenter.goToSignUp,
+                                icon: const Icon(Icons.person),
+                                label: Text(R.string.addAccount))
+                          ],
                         ),
-                        LoginButton(),
-                        TextButton.icon(
-                            onPressed: presenter.goToSignUp,
-                            icon: const Icon(Icons.person),
-                            label: Text(R.string.addAccount))
-                      ],
-                    )),
-                  ),
-                )
-              ]),
+                      ),
+                    ),
+                  )
+                ],
+              ),
             ),
           );
         },

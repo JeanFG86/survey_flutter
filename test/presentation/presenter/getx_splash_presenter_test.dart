@@ -1,20 +1,13 @@
+import 'package:survey_flutter/presentation/presenters/presenters.dart';
+
+import '../../domain/mocks/mocks.dart';
+
 import 'package:mocktail/mocktail.dart';
-import 'package:survey_flutter/domain/entities/entities.dart';
-import 'package:survey_flutter/domain/usecases/load_current_account.dart';
-import 'package:survey_flutter/presentation/presenter/presenter.dart';
 import 'package:test/test.dart';
 
-import 'getx_login_presenter_test.dart';
-
-class LoadCurrentAccountSpy extends Mock implements LoadCurrentAccount {
-  When mockLoadCall() => when(() => load());
-  void mockLoad({required AccountEntity account}) => mockLoadCall().thenAnswer((_) async => account);
-  void mockLoadError() => mockLoadCall().thenThrow(Exception());
-}
-
 void main() {
-  late LoadCurrentAccountSpy loadCurrentAccount;
   late GetxSplashPresenter sut;
+  late LoadCurrentAccountSpy loadCurrentAccount;
 
   setUp(() {
     loadCurrentAccount = LoadCurrentAccountSpy();

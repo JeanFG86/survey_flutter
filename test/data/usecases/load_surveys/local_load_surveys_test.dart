@@ -1,91 +1,30 @@
-import 'package:faker/faker.dart';
-import 'package:mocktail/mocktail.dart';
-import 'package:survey_flutter/data/cache/cache.dart';
 import 'package:survey_flutter/data/usecases/usecases.dart';
 import 'package:survey_flutter/domain/entities/entities.dart';
 import 'package:survey_flutter/domain/helpers/helpers.dart';
+
+import '../../../domain/mocks/entity_factory.dart';
+import '../../../infra/mocks/mocks.dart';
+import '../../mocks/mocks.dart';
+
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
 
-class CacheStorageSpy extends Mock implements CacheStorage {
-  CacheStorageSpy() {
-    mockDelete();
-    mockSave();
-  }
-
-  When mockFetchCall() => when(() => fetch(any()));
-  void mockFetch(dynamic json) => mockFetchCall().thenAnswer((_) async => json);
-  void mockFetchError() => mockFetchCall().thenThrow(Exception());
-
-  When mockDeleteCall() => when(() => delete(any()));
-  void mockDelete() => mockDeleteCall().thenAnswer((_) async => _);
-  void mockDeleteError() => mockDeleteCall().thenThrow(Exception());
-
-  When mockSaveCall() => when(() => save(key: any(named: 'key'), value: any(named: 'value')));
-  void mockSave() => mockSaveCall().thenAnswer((_) async => _);
-  void mockSaveError() => mockSaveCall().thenThrow(Exception());
-}
-
-class CacheFactory {
-  static List<Map> makeSurveyList() => [
-        {
-          'id': faker.guid.guid(),
-          'question': faker.randomGenerator.string(10),
-          'date': '2020-07-20T00:00:00Z',
-          'didAnswer': 'false',
-        },
-        {
-          'id': faker.guid.guid(),
-          'question': faker.randomGenerator.string(10),
-          'date': '2019-02-02T00:00:00Z',
-          'didAnswer': 'true',
-        }
-      ];
-
-  static List<Map> makeInvalidSurveyList() => [
-        {
-          'id': faker.guid.guid(),
-          'question': faker.randomGenerator.string(10),
-          'date': 'invalid date',
-          'didAnswer': 'false',
-        }
-      ];
-
-  static List<Map> makeIncompleteSurveyList() => [
-        {
-          'date': '2019-02-02T00:00:00Z',
-          'didAnswer': 'false',
-        }
-      ];
-
-  static List<SurveyEntity> makeSurveyList2() => [
-        SurveyEntity(
-            id: faker.guid.guid(),
-            question: faker.randomGenerator.string(10),
-            dateTime: DateTime.utc(2020, 2, 2),
-            didAnswer: true),
-        SurveyEntity(
-            id: faker.guid.guid(),
-            question: faker.randomGenerator.string(10),
-            dateTime: DateTime.utc(2018, 12, 20),
-            didAnswer: false)
-      ];
-}
-
 void main() {
-  late CacheStorageSpy cacheStorage;
   late LocalLoadSurveys sut;
+  late CacheStorageSpy cacheStorage;
   late List<Map> data;
   late List<SurveyEntity> surveys;
 
   setUp(() {
-    surveys = CacheFactory.makeSurveyList2();
+    surveys = EntityFactory.makeSurveyList();
     data = CacheFactory.makeSurveyList();
     cacheStorage = CacheStorageSpy();
     cacheStorage.mockFetch(data);
     sut = LocalLoadSurveys(cacheStorage: cacheStorage);
   });
+
   group('load', () {
-    test('Should call FetchCacheStorage with correct key', () async {
+    test('Should call cacheStorage with correct key', () async {
       await sut.load();
 
       verify(() => cacheStorage.fetch('surveys')).called(1);
@@ -136,7 +75,7 @@ void main() {
   });
 
   group('validate', () {
-    test('Should call CacheStorage on validate', () async {
+    test('Should call cacheStorage with correct key', () async {
       await sut.validate();
 
       verify(() => cacheStorage.fetch('surveys')).called(1);
@@ -157,10 +96,18 @@ void main() {
 
       verify(() => cacheStorage.delete('surveys')).called(1);
     });
+
+    test('Should delete cache if fetch fails', () async {
+      cacheStorage.mockFetchError();
+
+      await sut.validate();
+
+      verify(() => cacheStorage.delete('surveys')).called(1);
+    });
   });
 
   group('save', () {
-    test('Should call cacheStorage save with correct values', () async {
+    test('Should call cacheStorage with correct values', () async {
       final list = [
         {
           'id': surveys[0].id,
@@ -180,13 +127,13 @@ void main() {
 
       verify(() => cacheStorage.save(key: 'surveys', value: list)).called(1);
     });
-  });
 
-  test('Should throw UnexpectedError if save throws', () async {
-    cacheStorage.mockSaveError();
+    test('Should throw UnexpectedError if save throws', () async {
+      cacheStorage.mockSaveError();
 
-    final future = sut.save(surveys);
+      final future = sut.save(surveys);
 
-    expect(future, throwsA(DomainError.unexpected));
+      expect(future, throwsA(DomainError.unexpected));
+    });
   });
 }

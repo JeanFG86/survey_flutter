@@ -1,31 +1,14 @@
-import 'package:faker/faker.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:survey_flutter/domain/entities/entities.dart';
 import 'package:survey_flutter/domain/helpers/helpers.dart';
-import 'package:survey_flutter/domain/usecases/usecases.dart';
-import 'package:survey_flutter/presentation/presenter/presenter.dart';
-import 'package:survey_flutter/ui/helpers/errors/errors.dart';
-import 'package:survey_flutter/ui/pages/surveys/surveys.dart';
+import 'package:survey_flutter/presentation/presenters/presenters.dart';
+import 'package:survey_flutter/ui/helpers/helpers.dart';
+import 'package:survey_flutter/ui/pages/pages.dart';
+
+import '../../data/mocks/mocks.dart';
+import '../../domain/mocks/mocks.dart';
+
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
-
-class LoadSurveysSpy extends Mock implements LoadSurveys {
-  When mockLoadCall() => when(() => load());
-  void mockLoad(List<SurveyEntity> surveys) => mockLoadCall().thenAnswer((_) async => surveys);
-  void mockLoadError(DomainError error) => mockLoadCall().thenThrow(error);
-}
-
-List<SurveyEntity> makeSurveyList() => [
-      SurveyEntity(
-          id: faker.guid.guid(),
-          question: faker.randomGenerator.string(10),
-          dateTime: DateTime.utc(2020, 2, 2),
-          didAnswer: true),
-      SurveyEntity(
-          id: faker.guid.guid(),
-          question: faker.randomGenerator.string(10),
-          dateTime: DateTime.utc(2018, 12, 20),
-          didAnswer: false)
-    ];
 
 void main() {
   late GetxSurveysPresenter sut;
@@ -33,7 +16,7 @@ void main() {
   late List<SurveyEntity> surveys;
 
   setUp(() {
-    surveys = makeSurveyList();
+    surveys = EntityFactory.makeSurveyList();
     loadSurveys = LoadSurveysSpy();
     loadSurveys.mockLoad(surveys);
     sut = GetxSurveysPresenter(loadSurveys: loadSurveys);
@@ -66,9 +49,19 @@ void main() {
     await sut.loadData();
   });
 
-  test('Should go to SurveyResultPage on survey click', () async {
-    sut.navigateToStream.listen(expectAsync1((page) => expect(page, '/survey_result/any_route')));
+  test('Should emit correct events on access denied', () async {
+    loadSurveys.mockLoadError(DomainError.accessDenied);
 
+    expectLater(sut.isLoadingStream, emitsInOrder([true, false]));
+    expectLater(sut.isSessionExpiredStream, emits(true));
+
+    await sut.loadData();
+  });
+
+  test('Should go to SurveyResultPage on survey click', () async {
+    expectLater(sut.navigateToStream, emitsInOrder(['/survey_result/any_route', '/survey_result/any_route']));
+
+    sut.goToSurveyResult('any_route');
     sut.goToSurveyResult('any_route');
   });
 }

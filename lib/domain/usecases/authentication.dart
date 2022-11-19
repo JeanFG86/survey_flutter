@@ -1,6 +1,6 @@
-import 'package:equatable/equatable.dart';
-
 import '../entities/entities.dart';
+
+import 'package:equatable/equatable.dart';
 
 abstract class Authentication {
   Future<AccountEntity> auth(AuthenticationParams params);

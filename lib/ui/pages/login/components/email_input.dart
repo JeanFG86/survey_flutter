@@ -1,12 +1,12 @@
+import '../../../helpers/helpers.dart';
+import '../login.dart';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../helpers/errors/errors.dart';
-import '../../../helpers/i18n/resources.dart';
-import '../../pages.dart';
-
-// ignore: use_key_in_widget_constructors
 class EmailInput extends StatelessWidget {
+  const EmailInput({super.key});
+
   @override
   Widget build(BuildContext context) {
     final presenter = Provider.of<LoginPresenter>(context);

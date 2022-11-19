@@ -1,9 +1,8 @@
-import '../../../../presentation/presenter/presenter.dart';
+import '../../../../presentation/presenters/presenters.dart';
 import '../../../../ui/pages/pages.dart';
 import '../../factories.dart';
 
-SurveysPresenter makeGetxSurveysPresenter() {
-  //makeRemoteLoadSurveys -- sem funcao offline
-  //makeRemoteLoadSurveysWithLocalFallback -- com funcao offline
-  return GetxSurveysPresenter(loadSurveys: makeRemoteLoadSurveys());
-}
+SurveysPresenter makeGetxSurveysPresenter() => GetxSurveysPresenter(
+      //loadSurveys: makeRemoteLoadSurveysWithLocalFallback(),
+      loadSurveys: makeRemoteLoadSurveys(),
+    );

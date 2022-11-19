@@ -1,4 +1,4 @@
-import '../../../../presentation/presenter/presenter.dart';
+import '../../../../presentation/presenters/presenters.dart';
 import '../../../../ui/pages/signup/signup.dart';
 import '../../factories.dart';
 

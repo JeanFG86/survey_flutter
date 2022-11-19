@@ -1,5 +1,6 @@
+import '../../helpers/helpers.dart';
+
 import 'package:flutter/material.dart';
-import 'package:survey_flutter/ui/helpers/errors/ui_error.dart';
 
 abstract class SignUpPresenter implements Listenable {
   Stream<UIError?> get nameErrorStream;
@@ -17,5 +18,4 @@ abstract class SignUpPresenter implements Listenable {
   void validatePasswordConfirmation(String passwordConfirmation);
   Future<void> signUp();
   void goToLogin();
-  void dispose();
 }

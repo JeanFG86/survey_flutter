@@ -1,26 +1,28 @@
+import '../../mixins/mixins.dart';
+import './splash.dart';
+
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
-import 'splash_presenter.dart';
-
-class SplashPage extends StatelessWidget {
+class SplashPage extends StatelessWidget with NavigationManager {
   final SplashPresenter presenter;
 
-  // ignore: use_key_in_widget_constructors
-  const SplashPage({required this.presenter});
+  SplashPage({super.key, required this.presenter});
+
   @override
   Widget build(BuildContext context) {
     presenter.checkAccount();
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Survey')),
-      body: Builder(builder: (context) {
-        presenter.navigateToStream.listen((page) {
-          if (page != null && page.isNotEmpty) {
-            Get.offAllNamed(page);
-          }
-        });
-        return const Center(child: CircularProgressIndicator());
-      }),
+      appBar: AppBar(title: const Text('Surveys')),
+      body: Builder(
+        builder: (context) {
+          handleNavigation(presenter.navigateToStream, clear: true);
+
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      ),
     );
   }
 }

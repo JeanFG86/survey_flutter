@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class ActiveIcon extends StatelessWidget {
+  const ActiveIcon({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Padding(

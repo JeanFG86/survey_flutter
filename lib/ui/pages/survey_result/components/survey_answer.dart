@@ -1,31 +1,31 @@
-import 'package:flutter/material.dart';
+import '../survey_result.dart';
+import './components.dart';
 
-import '../../pages.dart';
-import 'components.dart';
+import 'package:flutter/material.dart';
 
 class SurveyAnswer extends StatelessWidget {
   final SurveyAnswerViewModel viewModel;
 
-  SurveyAnswer(this.viewModel);
+  const SurveyAnswer(this.viewModel, {super.key});
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> _buildItens() {
+    // ignore: no_leading_underscores_for_local_identifiers
+    List<Widget> _buildItems() {
       List<Widget> children = [
         Expanded(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10),
-            child: Text(
-              viewModel.answer,
-              style: TextStyle(fontSize: 16),
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Text(viewModel.answer, style: const TextStyle(fontSize: 16)),
           ),
         ),
-        Text(
-          viewModel.percent,
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color.fromARGB(255, 3, 8, 71)),
-        ),
-        viewModel.isCurrentAnswer ? ActiveIcon() : DisabledIcon()
+        Text(viewModel.percent,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).primaryColorDark,
+            )),
+        viewModel.isCurrentAnswer ? const ActiveIcon() : const DisabledIcon()
       ];
       if (viewModel.image != null) {
         children.insert(
@@ -45,12 +45,10 @@ class SurveyAnswer extends StatelessWidget {
           decoration: BoxDecoration(color: Theme.of(context).backgroundColor),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: _buildItens(),
+            children: _buildItems(),
           ),
         ),
-        const Divider(
-          height: 1,
-        )
+        const Divider(height: 1)
       ],
     );
   }

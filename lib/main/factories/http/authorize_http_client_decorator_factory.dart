@@ -1,8 +1,9 @@
-import 'package:survey_flutter/main/factories/cache/cache.dart';
-import 'package:survey_flutter/main/factories/http/http.dart';
-
 import '../../../data/http/http.dart';
 import '../../decorators/decorators.dart';
+import '../../factories/factories.dart';
 
-HttpClient makeAuthorizeHttpClientDecorator() =>
-    AuthorizeHttpClientDecorator(fetchSecureCacheStorage: makeSecureStorageAdapter(), decoratee: makeHttpAdapter());
+HttpClient makeAuthorizeHttpClientDecorator() => AuthorizeHttpClientDecorator(
+      decoratee: makeHttpAdapter(),
+      fetchSecureCacheStorage: makeSecureStorageAdapter(),
+      deleteSecureCacheStorage: makeSecureStorageAdapter(),
+    );

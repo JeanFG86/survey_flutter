@@ -19,10 +19,10 @@ void main() {
   });
 
   test('Should return null if email is valid', () {
-    expect(sut.validate({'any_field': 'jean86@gmail.com'}), null);
+    expect(sut.validate({'any_field': 'rodrigo.manguinho@gmail.com'}), null);
   });
 
   test('Should return error if email is invalid', () {
-    expect(sut.validate({'any_field': 'jean.fg'}), ValidationError.invalidField);
+    expect(sut.validate({'any_field': 'rodrigo.manguinho'}), ValidationError.invalidField);
   });
 }

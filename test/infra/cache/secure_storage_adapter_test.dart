@@ -1,71 +1,74 @@
-import 'package:faker/faker.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:survey_flutter/infra/cache/cache.dart';
+
+import '../mocks/mocks.dart';
+
+import 'package:faker/faker.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
-
-class FlutterSecurityStorageSpy extends Mock implements FlutterSecureStorage {
-  FlutterSecurityStorageSpy() {
-    mockSave();
-  }
-
-  When mockSaveCall() => when(() => write(key: any(named: 'key'), value: any(named: 'value')));
-  void mockSave() => mockSaveCall().thenAnswer((_) async => _);
-  void mockSaveError() => when(() => mockSaveCall().thenThrow(Exception()));
-
-  When mockFetchCall() => when(() => read(key: any(named: 'key')));
-  void mockFetch(String? data) => mockFetchCall().thenAnswer((_) async => data);
-  void mockFetchError() => when(() => mockFetchCall().thenThrow(Exception()));
-}
 
 void main() {
   late SecureStorageAdapter sut;
-  late FlutterSecurityStorageSpy localStorage;
+  late FlutterSecureStorageSpy secureStorage;
   late String key;
-  late dynamic value;
-  late String result;
+  late String value;
 
   setUp(() {
-    key = faker.randomGenerator.string(5);
-    value = faker.randomGenerator.string(50);
-    result = faker.randomGenerator.string(50);
-    localStorage = FlutterSecurityStorageSpy();
-    localStorage.mockFetch(result);
-    sut = SecureStorageAdapter(secureStorage: localStorage);
+    key = faker.lorem.word();
+    value = faker.guid.guid();
+    secureStorage = FlutterSecureStorageSpy();
+    secureStorage.mockFetch(value);
+    sut = SecureStorageAdapter(secureStorage: secureStorage);
   });
 
-  group('saveSecure', () {
+  group('save', () {
     test('Should call save secure with correct values', () async {
-      await sut.saveSecure(key: key, value: value);
+      await sut.save(key: key, value: value);
 
-      verify(() => localStorage.write(key: key, value: value));
+      verify(() => secureStorage.write(key: key, value: value));
     });
 
     test('Should throw if save secure throws', () async {
-      localStorage.mockSaveError();
-      final future = sut.saveSecure(key: key, value: value);
+      secureStorage.mockSaveError();
+
+      final future = sut.save(key: key, value: value);
 
       expect(future, throwsA(const TypeMatcher<Exception>()));
     });
   });
 
-  group('fetchSecure', () {
+  group('fetch', () {
     test('Should call fetch secure with correct value', () async {
-      await sut.fetchSecure(key);
+      await sut.fetch(key);
 
-      verify(() => localStorage.read(key: key));
+      verify(() => secureStorage.read(key: key));
     });
 
     test('Should return correct value on success', () async {
-      final fetchedValue = await sut.fetchSecure(key);
+      final fetchedValue = await sut.fetch(key);
 
-      expect(fetchedValue, result);
+      expect(fetchedValue, value);
     });
 
     test('Should throw if fetch secure throws', () async {
-      localStorage.mockFetchError();
+      secureStorage.mockFetchError();
 
-      final future = sut.fetchSecure(key);
+      final future = sut.fetch(key);
+
+      expect(future, throwsA(const TypeMatcher<Exception>()));
+    });
+  });
+
+  group('delete', () {
+    test('Should call delete with correct key', () async {
+      await sut.delete(key);
+
+      verify(() => secureStorage.delete(key: key)).called(1);
+    });
+
+    test('Should throw if delete throws', () async {
+      secureStorage.mockDeleteError();
+
+      final future = sut.delete(key);
 
       expect(future, throwsA(const TypeMatcher<Exception>()));
     });

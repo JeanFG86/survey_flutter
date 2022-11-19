@@ -1,38 +1,14 @@
-import 'package:faker/faker.dart';
-import 'package:mocktail/mocktail.dart';
 import 'package:survey_flutter/data/http/http.dart';
 import 'package:survey_flutter/data/usecases/usecases.dart';
 import 'package:survey_flutter/domain/entities/entities.dart';
 import 'package:survey_flutter/domain/helpers/helpers.dart';
+
+import '../../../infra/mocks/mocks.dart';
+import '../../mocks/mocks.dart';
+
+import 'package:faker/faker.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:test/test.dart';
-
-class HttpClientSpy extends Mock implements HttpClient {
-  When mockRequestCall() =>
-      when(() => request(url: any(named: 'url'), method: any(named: 'method'), body: any(named: 'body')));
-  void mockRequest(dynamic data) => mockRequestCall().thenAnswer((_) async => data);
-  void mockRequestError(HttpError error) => mockRequestCall().thenThrow(error);
-}
-
-class ApiFactory {
-  static List<Map> makeSurveyList() => [
-        {
-          'id': faker.guid.guid(),
-          'question': faker.randomGenerator.string(50),
-          'didAnswer': faker.randomGenerator.boolean(),
-          'date': faker.date.dateTime().toIso8601String(),
-        },
-        {
-          'id': faker.guid.guid(),
-          'question': faker.randomGenerator.string(50),
-          'didAnswer': faker.randomGenerator.boolean(),
-          'date': faker.date.dateTime().toIso8601String(),
-        }
-      ];
-
-  static Map makeInvalidJson() => {'invalid_key': 'invalid_value'};
-
-  static List<Map> makeInvalidList() => [makeInvalidJson(), makeInvalidJson()];
-}
 
 void main() {
   late RemoteLoadSurveys sut;

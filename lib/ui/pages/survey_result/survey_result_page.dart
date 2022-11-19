@@ -1,28 +1,25 @@
-import 'package:flutter/material.dart';
-import 'package:survey_flutter/ui/helpers/i18n/i18n.dart';
-
 import '../../components/components.dart';
-import '../pages.dart';
-import 'components/components.dart';
+import '../../helpers/helpers.dart';
+import '../../mixins/mixins.dart';
+import './components/components.dart';
+import './survey_result.dart';
 
-class SurveyResultPage extends StatelessWidget {
+import 'package:flutter/material.dart';
+
+class SurveyResultPage extends StatelessWidget with LoadingManager, SessionManager {
   final SurveyResultPresenter presenter;
 
-  const SurveyResultPage(this.presenter);
+  SurveyResultPage(this.presenter, {super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text(R.string.surveys)),
+        appBar: AppBar(title: Text(R.string.surveyResult)),
         body: Builder(builder: (context) {
-          presenter.isLoadingStream.listen((isLoading) {
-            if (isLoading == true) {
-              showLoading(context);
-            } else {
-              hideLoading(context);
-            }
-          });
+          handleLoading(context, presenter.isLoadingStream);
+          handleSessionExpired(presenter.isSessionExpiredStream);
           presenter.loadData();
+
           return StreamBuilder<SurveyResultViewModel?>(
               stream: presenter.surveyResultStream,
               builder: (context, snapshot) {
@@ -30,7 +27,7 @@ class SurveyResultPage extends StatelessWidget {
                   return ReloadScreen(error: '${snapshot.error}', reload: presenter.loadData);
                 }
                 if (snapshot.hasData) {
-                  return SurveyResult(viewModel: snapshot.data!);
+                  return SurveyResult(viewModel: snapshot.data!, onSave: presenter.save);
                 }
                 return const SizedBox(height: 0);
               });

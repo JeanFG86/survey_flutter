@@ -1,7 +1,6 @@
-import 'package:survey_flutter/domain/usecases/load_surveys.dart';
-
 import '../../../domain/entities/entities.dart';
 import '../../../domain/helpers/helpers.dart';
+import '../../../domain/usecases/usecases.dart';
 import '../../cache/cache.dart';
 import '../../models/models.dart';
 
@@ -15,9 +14,8 @@ class LocalLoadSurveys implements LoadSurveys {
     try {
       final data = await cacheStorage.fetch('surveys');
       if (data?.isEmpty != false) {
-        throw Exception;
+        throw Exception();
       }
-
       return _mapToEntity(data);
     } catch (error) {
       throw DomainError.unexpected;

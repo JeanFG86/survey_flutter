@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
 class LoginHeader extends StatelessWidget {
-  const LoginHeader({
-    Key? key,
-  }) : super(key: key);
+  const LoginHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,8 +14,7 @@ class LoginHeader extends StatelessWidget {
               end: Alignment.bottomLeft,
               colors: [Theme.of(context).primaryColorLight, Theme.of(context).primaryColorDark]),
           boxShadow: const [BoxShadow(offset: Offset(0, 0), spreadRadius: 0, blurRadius: 4, color: Colors.black)],
-          borderRadius:
-              const BorderRadius.only(bottomLeft: Radius.elliptical(20, 20), bottomRight: Radius.elliptical(20, 20))),
+          borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(80))),
       child: const Image(image: AssetImage('lib/ui/assets/logo.png')),
     );
   }
