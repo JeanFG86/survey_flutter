@@ -1,39 +1,33 @@
 import 'package:survey_flutter/ui/helpers/helpers.dart';
 import 'package:survey_flutter/ui/pages/pages.dart';
+import 'package:survey_flutter/ui/pages/survey_result/components/components.dart';
 
 import '../helpers/helpers.dart';
 import '../mocks/mocks.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:network_image_mock/network_image_mock.dart';
 import 'package:mocktail/mocktail.dart';
 
 void main() {
-  late SurveysPresenterSpy presenter;
+  late SurveyResultPresenterSpy presenter;
 
   Future<void> loadPage(WidgetTester tester) async {
-    presenter = SurveysPresenterSpy();
-    await tester.pumpWidget(makePage(path: '/surveys', page: () => SurveysPage(presenter)));
+    presenter = SurveyResultPresenterSpy();
+    await mockNetworkImagesFor(() async {
+      await tester.pumpWidget(makePage(path: '/survey_result/any_survey_id', page: () => SurveyResultPage(presenter)));
+    });
   }
 
   tearDown(() {
     presenter.dispose();
   });
 
-  testWidgets('Should call LoadSurveys on page load', (WidgetTester tester) async {
+  testWidgets('Should call LoadSurveyResult on page load', (WidgetTester tester) async {
     await loadPage(tester);
 
     verify(() => presenter.loadData()).called(1);
-  });
-
-  testWidgets('Should call LoadSurveys on reload', (WidgetTester tester) async {
-    await loadPage(tester);
-
-    presenter.emitNavigateTo('/any_route');
-    await tester.pumpAndSettle();
-    await tester.pageBack();
-
-    verify(() => presenter.loadData()).called(2);
   });
 
   testWidgets('Should handle loading correctly', (WidgetTester tester) async {
@@ -52,69 +46,46 @@ void main() {
     expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
 
-  testWidgets('Should present error if surveysStream fails', (WidgetTester tester) async {
+  testWidgets('Should present error if surveyResultStream fails', (WidgetTester tester) async {
     await loadPage(tester);
 
-    presenter.emitSurveysError(UIError.unexpected.description);
+    presenter.emitSurveyResultError(UIError.unexpected.description);
     await tester.pump();
 
     expect(find.text('Algo errado aconteceu. Tente novamente em breve.'), findsOneWidget);
     expect(find.text('Recarregar'), findsOneWidget);
-    expect(find.text('Question 1'), findsNothing);
+    expect(find.text('Question'), findsNothing);
   });
 
-  testWidgets('Should present list if surveysStream succeeds', (WidgetTester tester) async {
+  testWidgets('Should call LoadSurveyResult on reload button click', (WidgetTester tester) async {
     await loadPage(tester);
 
-    presenter.emitSurveys(ViewModelFactory.makeSurveyList());
-    await tester.pump();
-
-    expect(find.text('Algo errado aconteceu. Tente novamente em breve.'), findsNothing);
-    expect(find.text('Recarregar'), findsNothing);
-    expect(find.text('Question 1'), findsWidgets);
-    expect(find.text('Question 2'), findsWidgets);
-    expect(find.text('Date 1'), findsWidgets);
-    expect(find.text('Date 2'), findsWidgets);
-  });
-
-  testWidgets('Should call LoadSurveys on reload button click', (WidgetTester tester) async {
-    await loadPage(tester);
-
-    presenter.emitSurveysError(UIError.unexpected.description);
+    presenter.emitSurveyResultError(UIError.unexpected.description);
     await tester.pump();
     await tester.tap(find.text('Recarregar'));
 
     verify(() => presenter.loadData()).called(2);
   });
 
-  testWidgets('Should call gotoSurveyResult on survey click', (WidgetTester tester) async {
+  testWidgets('Should present valid data if surveyResultStream succeeds', (WidgetTester tester) async {
     await loadPage(tester);
 
-    presenter.emitSurveys(ViewModelFactory.makeSurveyList());
-    await tester.pump();
+    presenter.emitSurveyResult(ViewModelFactory.makeSurveyResult());
+    await mockNetworkImagesFor(() async {
+      await tester.pump();
+    });
 
-    await tester.tap(find.text('Question 1'));
-    await tester.pump();
-
-    verify(() => presenter.goToSurveyResult('1')).called(1);
-  });
-
-  testWidgets('Should change page', (WidgetTester tester) async {
-    await loadPage(tester);
-
-    presenter.emitNavigateTo('/any_route');
-    await tester.pumpAndSettle();
-
-    expect(currentRoute, '/any_route');
-    expect(find.text('fake page'), findsOneWidget);
-  });
-
-  testWidgets('Should not change page', (WidgetTester tester) async {
-    await loadPage(tester);
-
-    presenter.emitNavigateTo('');
-    await tester.pump();
-    expect(currentRoute, '/surveys');
+    expect(find.text('Algo errado aconteceu. Tente novamente em breve.'), findsNothing);
+    expect(find.text('Recarregar'), findsNothing);
+    expect(find.text('Question'), findsOneWidget);
+    expect(find.text('Answer 0'), findsOneWidget);
+    expect(find.text('Answer 1'), findsOneWidget);
+    expect(find.text('60%'), findsOneWidget);
+    expect(find.text('40%'), findsOneWidget);
+    expect(find.byType(ActiveIcon), findsOneWidget);
+    expect(find.byType(DisabledIcon), findsOneWidget);
+    final image = tester.widget<Image>(find.byType(Image)).image as NetworkImage;
+    expect(image.url, 'Image 0');
   });
 
   testWidgets('Should logout', (WidgetTester tester) async {
@@ -132,6 +103,30 @@ void main() {
 
     presenter.emitSessionExpired(false);
     await tester.pumpAndSettle();
-    expect(currentRoute, '/surveys');
+    expect(currentRoute, '/survey_result/any_survey_id');
+  });
+
+  testWidgets('Should call save on list item click', (WidgetTester tester) async {
+    await loadPage(tester);
+
+    presenter.emitSurveyResult(ViewModelFactory.makeSurveyResult());
+    await mockNetworkImagesFor(() async {
+      await tester.pump();
+    });
+    await tester.tap(find.text('Answer 1'));
+
+    verify(() => presenter.save(answer: 'Answer 1')).called(1);
+  });
+
+  testWidgets('Should not call save on current answer click', (WidgetTester tester) async {
+    await loadPage(tester);
+
+    presenter.emitSurveyResult(ViewModelFactory.makeSurveyResult());
+    await mockNetworkImagesFor(() async {
+      await tester.pump();
+    });
+    await tester.tap(find.text('Answer 0'));
+
+    verifyNever(() => presenter.save(answer: 'Answer 0'));
   });
 }
