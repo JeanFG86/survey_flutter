@@ -18,11 +18,12 @@ class RemoteSurveyAnswerModel {
     if (!json.keys.toSet().containsAll(['answer', 'isCurrentAccountAnswer', 'percent'])) {
       throw HttpError.invalidData;
     }
+
     return RemoteSurveyAnswerModel(
       image: json['image'],
       answer: json['answer'],
       isCurrentAccountAnswer: json['isCurrentAccountAnswer'],
-      percent: json['percent'],
+      percent: json['percent'].round(),
     );
   }
 
